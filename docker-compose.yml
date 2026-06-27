@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  mysql:
+    container_name: open_finance_txengine
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-open_finance_db}
+      - MYSQL_USER=${MYSQL_USER:-admin}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
