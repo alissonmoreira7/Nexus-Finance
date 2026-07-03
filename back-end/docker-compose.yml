@@ -2,13 +2,13 @@ version: '3.8'
 
 services:
   mysql:
-    container_name: open_finance_txengine
+    container_name: nexus_engine
     image: mysql:8.0
     ports:
       - "3307:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE:-open_finance_db}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-nexus_engine_db}
       - MYSQL_USER=${MYSQL_USER:-admin}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     volumes:

@@ -1,0 +1,202 @@
+.geral-login {
+  min-height: 100vh;
+  width: 100%;
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(83, 74, 183, 0.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 10%, rgba(127, 119, 221, 0.2) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 80%, rgba(29, 158, 117, 0.2) 0%, transparent 45%),
+    radial-gradient(ellipse at 10% 80%, rgba(83, 74, 183, 0.15) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 50%, rgba(26, 24, 48, 0.8) 0%, transparent 70%),
+    url('/src/assets/fundo-geral.jpg');
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.container-login {
+  align-items: center;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  padding: var(--space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-radius: var(--radius-xl);
+  background: rgba(20, 18, 32, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(83, 74, 183, 0.35);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.container-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+
+  & img {
+    width: 100px;   
+    height: 100px;
+    border-radius: 25%;
+    object-fit: contain;
+    padding: 8px;
+  }
+
+  & h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-teal-light);
+    margin: 0;
+    letter-spacing: -0.5px;
+    margin-top: -10px;
+
+    & em {
+      font-style: normal; 
+      color: var(--color-purple-core);  
+      font-weight: 800;
+    }
+  }
+
+  & .label-caps {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-purple-core);   
+    letter-spacing: 8px;  
+    margin-top: -10px;
+  }
+}
+
+.sub-titulo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+
+  & h1 {
+    font-size: 32px;
+    color: var(--color-teal-light);
+  }
+ 
+  & p {
+    font-size: 14px;
+    color: var(--color-teal-light);
+    margin-top: -5px;
+  }
+}
+
+.form-login {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: var(--space-4);
+
+  .input_email {
+    .input_email_titulo{
+      font-size: 12px;
+      color: var(--color-purple-light);
+    }
+  }
+
+  .input_senha {
+      font-size: 12px;
+      color: var(--color-purple-light);
+    }
+}
+
+.btn-entrar {
+  height: 40px;
+  background-color: var(--color-purple-mid);
+  color: var(--color-teal-light);       
+  
+  border: none;                              
+  border-radius: var(--radius-md, 4px);      
+  cursor: pointer;                         
+  width: 100%;                            
+}
+
+.divisor {
+  display: flex;
+  width: 100%;
+}
+
+.divisor span {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--color-purple-light);
+  white-space: nowrap;
+  width: 100%; 
+}
+
+.divisor span::before,
+.divisor span::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-purple-core);
+  opacity: 0.4;
+}
+
+.btn-google-custom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3, 12px);      
+  width: 100%;                    
+  height: 48px;                 
+  background-color: rgba(20, 18, 32, 0.55); 
+  border: 1px solid var(--color-purple-core, #232042); 
+  border-radius: var(--radius-lg, 24px); 
+  
+  color: var(--color-purple-light);             
+  font-size: 16px;
+  font-family: sans-serif;
+  
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-google-custom .logo-google {
+  width: 20px;
+  height: 20px;
+}
+
+.btn-google-custom:hover {
+  background-color: rgba(30, 27, 48, 0.8);
+  border-color: var(--color-purple-light, #5850e0);
+}
+
+.criar-conta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.criar-conta p {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.criar-conta a {
+  color: var(--color-teal);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.criar-conta a:hover {
+  color: var(--teal-l);
+}
