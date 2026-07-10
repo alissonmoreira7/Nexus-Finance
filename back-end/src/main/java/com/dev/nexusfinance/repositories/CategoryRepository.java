@@ -5,4 +5,4 @@ import com.dev.nexusfinance.models.Category;
 
 import java.util.UUID;
 
-public interface CategoryRepository extends JpaRepository <Category, UUID> {}
+public interface CategoryRepository extends JpaRepository<Category, Long> {}
