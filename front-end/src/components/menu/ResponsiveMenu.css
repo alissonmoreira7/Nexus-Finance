@@ -1,0 +1,79 @@
+.bottom-nav {
+  position: fixed;
+  z-index: 100;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(100%, 760px);
+  min-height: 72px;
+  padding: 8px max(12px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  background: rgba(20, 18, 32, .96);
+  border: 1px solid rgba(175, 169, 236, .15);
+  border-bottom: 0;
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -12px 35px rgba(8, 7, 18, .38);
+  backdrop-filter: blur(18px);
+}
+
+.bottom-nav-item {
+  min-width: 0;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #8f8aa9;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.bottom-nav-item.active {
+  color: #c8c3ff;
+  background: rgba(83, 74, 183, .22);
+}
+
+.bottom-nav-item:active { transform: scale(.96); }
+.bottom-nav-item:focus-visible { outline: 2px solid #7f77dd; outline-offset: 2px; }
+
+.add-transaction-nav {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  color: #afa9ec;
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.add-icon {
+  width: 58px;
+  height: 58px;
+  margin-top: -27px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(145deg, #6b61d1, #534ab7);
+  border: 5px solid #141220;
+  border-radius: 50%;
+  box-shadow: 0 9px 24px rgba(83, 74, 183, .48);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.add-transaction-nav.active { color: #c8c3ff; }
+.add-transaction-nav.active .add-icon { background: linear-gradient(145deg, #29b88a, #1d9e75); box-shadow: 0 9px 24px rgba(29,158,117,.4); }
+.add-transaction-nav:active .add-icon { transform: scale(.94); }
+.add-transaction-nav:focus-visible { outline: 2px solid #7f77dd; outline-offset: 3px; border-radius: 12px; }
+
+@media (min-width: 761px) {
+  .bottom-nav { bottom: 18px; border-radius: 22px; border-bottom: 1px solid rgba(175, 169, 236, .15); }
+}

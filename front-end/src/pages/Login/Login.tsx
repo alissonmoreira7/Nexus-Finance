@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
+import { useAuth } from '../../contexts/AuthContext'
 import './style.css'
 import nexus_logo from '../../assets/nexus_logo.png'
 import EmailInput from '../../components/input/EmailInput'
@@ -9,19 +10,27 @@ import PasswordInput from '../../components/input/SenhaInput'
 function Login() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [error, setError] = useState('')
+  const { login, isLoading } = useAuth()
+  const navigate = useNavigate()
 
   const loginComGoogle = useGoogleLogin({
-    onSuccess: (response) => {
-      console.log('Token do Google:', response.access_token)
-    },
+    onSuccess: () => setError('Login com Google ainda não está disponível.'),
     onError: () => {
-      console.log('Falha na autenticação com o Google')
+      setError('Falha na autenticação com o Google.')
     }
   })
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    console.log('Enviando login:', { email, senha })
+    setError('')
+
+    try {
+      await login(email, senha)
+      navigate('/dashboard')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao fazer login')
+    }
   }
 
   return (
@@ -39,11 +48,12 @@ function Login() {
         </div>
 
         <form onSubmit={handleSubmit} className="form-login">
+          {error && <div className="error-message">{error}</div>}
           <EmailInput value={email} onChange={setEmail} />
           <PasswordInput value={senha} onChange={setSenha} />
 
-          <button type="submit" className="btn-entrar">
-            Entrar
+          <button type="submit" className="btn-entrar" disabled={isLoading}>
+            {isLoading ? 'Entrando...' : 'Entrar'}
           </button>
 
           <div className="divisor">
