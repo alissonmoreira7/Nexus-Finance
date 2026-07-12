@@ -1,23 +1,15 @@
 package com.dev.nexusfinance.controller;
-
 import com.dev.nexusfinance.models.User;
-import com.dev.nexusfinance.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.dev.nexusfinance.services.UserService;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
-
-@RestController
-@RequestMapping("/user")
+@RestController @RequestMapping("/api/v1/users")
 public class UserController {
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @PostMapping("/")
-    public User create(@RequestBody User user) {
-       return this.userRepository.save(user);
-    }
+    private final UserService service;
+    public UserController(UserService service) { this.service = service; }
+    @PostMapping public ResponseEntity<User> create(@RequestBody User user) { return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user)); }
+    @GetMapping("/me") public User me(@RequestAttribute UUID authenticatedUserId) { return service.findById(authenticatedUserId); }
+    @DeleteMapping("/me") public ResponseEntity<Void> delete(@RequestAttribute UUID authenticatedUserId) { service.delete(authenticatedUserId); return ResponseEntity.noContent().build(); }
 }
