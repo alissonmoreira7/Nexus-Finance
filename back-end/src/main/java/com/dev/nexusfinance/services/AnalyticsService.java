@@ -1,65 +1,27 @@
 package com.dev.nexusfinance.services;
-
 import com.dev.nexusfinance.models.CategoryType;
-import com.dev.nexusfinance.models.Transaction;
-import com.dev.nexusfinance.repositories.TransactionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.dev.nexusfinance.repositories.*;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @Service
 public class AnalyticsService {
-
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    public record AnalyticsSummary(
-        BigDecimal totalIncome,
-        BigDecimal totalExpense,
-        BigDecimal balance,
-        Map<String, BigDecimal> expensesByCategory
-    ) {}
-
+    private final TransactionRepository transactions;
+    private final AccountRepository accounts;
+    public AnalyticsService(TransactionRepository transactions, AccountRepository accounts) { this.transactions = transactions; this.accounts = accounts; }
+    @Transactional(readOnly = true)
     public AnalyticsSummary getSummary(UUID accountId) {
-        List<Transaction> transactions = transactionRepository
-        .findByAccount_IdAccount(accountId);
-
-        LocalDate now = LocalDate.now();
-        List<Transaction> doMes = transactions.stream()
-            .filter(tx -> tx.getTransaction_date().getMonth() == now.getMonth()
-                    && tx.getTransaction_date().getYear() == now.getYear())
-            .collect(Collectors.toList());
-
-        // soma receitas
-        BigDecimal totalIncome = doMes.stream()
-            .filter(tx -> tx.getCategory().getType() == CategoryType.INCOME)
-            .map(Transaction::getAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // soma despesas
-        BigDecimal totalExpense = doMes.stream()
-            .filter(tx -> tx.getCategory().getType() == CategoryType.EXPENSE)
-            .map(Transaction::getAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // agrupa gastos por categoria
-        Map<String, BigDecimal> expensesByCategory = new HashMap<>();
-        doMes.stream()
-            .filter(tx -> tx.getCategory().getType() == CategoryType.EXPENSE)
-            .forEach(tx -> {
-                String catName = tx.getCategory().getName();
-                expensesByCategory.merge(catName, tx.getAmount(), BigDecimal::add);
-            });
-
-        BigDecimal balance = totalIncome.subtract(totalExpense);
-
-        return new AnalyticsSummary(totalIncome, totalExpense, balance, expensesByCategory);
+        if (!accounts.existsById(accountId)) throw new ResourceNotFoundException("Conta não encontrada");
+        LocalDate start = LocalDate.now().withDayOfMonth(1), end = start.plusMonths(1);
+        BigDecimal income = value(transactions.sumByType(accountId, start, end, CategoryType.INCOME));
+        BigDecimal expense = value(transactions.sumByType(accountId, start, end, CategoryType.EXPENSE));
+        Map<String, BigDecimal> byCategory = new LinkedHashMap<>();
+        transactions.sumExpensesByCategory(accountId, start, end).forEach(row -> byCategory.put((String) row[0], value((BigDecimal) row[1])));
+        return new AnalyticsSummary(income, expense, income.subtract(expense), byCategory);
     }
+    private BigDecimal value(BigDecimal value) { return value == null ? BigDecimal.ZERO : value; }
+    public record AnalyticsSummary(BigDecimal totalIncome, BigDecimal totalExpense, BigDecimal balance, Map<String, BigDecimal> expensesByCategory) {}
 }
