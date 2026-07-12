@@ -7,19 +7,23 @@ interface PasswordInputProps{
     onChange: (value: string) => void;
     placeholder?: string;
     required?: boolean;
+    label?: string;
+    autoComplete?: string;
 }
 
 export default function PasswordInput({
   value,
   onChange,
   placeholder = "••••••••",
-  required = true
+  required = true,
+  label = "Senha",
+  autoComplete = "current-password"
 }: PasswordInputProps) {
     const [mostrarSenha, setMostrarSenha] = useState(false);
 
     return (
         <div className="input_senha">
-            <label className="input_senha_titulo">Senha</label>
+            <label className="input_senha_titulo">{label}</label>
         
             <div style={{ position: 'relative', width: '100%', minHeight: '44px' }}>
                  <div style={{
@@ -41,6 +45,8 @@ export default function PasswordInput({
                     onChange={(e) => onChange(e.target.value)}
                     placeholder={placeholder}
                     required={required}
+                    minLength={6}
+                    autoComplete={autoComplete}
                     style={{
                         paddingLeft: '40px',
                         paddingRight: '40px', 

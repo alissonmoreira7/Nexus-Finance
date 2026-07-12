@@ -1,103 +1,76 @@
 package com.dev.nexusfinance.services;
 
-import com.dev.nexusfinance.models.Account;
-import com.dev.nexusfinance.models.Category;
-import com.dev.nexusfinance.models.Transaction;
-import com.dev.nexusfinance.repositories.AccountRepository;
-import com.dev.nexusfinance.repositories.CategoryRepository;
-import com.dev.nexusfinance.repositories.TransactionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.dev.nexusfinance.models.*;
+import com.dev.nexusfinance.repositories.*;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class TransactionEngineService {
+    private final TransactionRepository transactions;
+    private final AccountRepository accounts;
+    private final CategoryRepository categories;
+    public TransactionEngineService(TransactionRepository transactions, AccountRepository accounts, CategoryRepository categories) {
+        this.transactions = transactions; this.accounts = accounts; this.categories = categories;
+    }
+    public record TransactionInput(LocalDate date, String rawDescription, BigDecimal amount) {}
 
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    public record TransactionInput(
-        LocalDate date,
-        String rawDescription,
-        BigDecimal amount
-    ) {}
-
-    // ── Processar lote de transações ──────────────────────────────
+    @Transactional
     public int processLote(UUID accountId, List<TransactionInput> inputs) {
-        Account account = accountRepository.findById(accountId)
-            .orElseThrow(() -> new RuntimeException("Conta não encontrada: " + accountId));
+        return process(accountId, inputs, TransactionSource.CSV);
+    }
 
-        List<Category> categories = categoryRepository.findAll();
-        List<Transaction> toSave = new ArrayList<>();
+    @Transactional
+    public Transaction processManual(UUID accountId, TransactionInput input) {
+        return processAndReturn(accountId, List.of(input), TransactionSource.MANUAL).get(0);
+    }
 
+    private int process(UUID accountId, List<TransactionInput> inputs, TransactionSource source) {
+        return processAndReturn(accountId, inputs, source).size();
+    }
+
+    private List<Transaction> processAndReturn(UUID accountId, List<TransactionInput> inputs, TransactionSource source) {
+        if (inputs == null || inputs.isEmpty()) throw new IllegalArgumentException("O lote deve conter ao menos uma transação");
+        if (inputs.size() > 10_000) throw new IllegalArgumentException("O lote excede o limite de 10.000 transações");
+        Account account = accounts.findById(accountId).orElseThrow(() -> new ResourceNotFoundException("Conta não encontrada"));
+        List<Category> dictionary = categories.findAll();
+        if (dictionary.isEmpty()) throw new IllegalStateException("Cadastre ao menos uma categoria antes de importar transações");
+        List<Transaction> toSave = new ArrayList<>(inputs.size());
         for (TransactionInput input : inputs) {
+            if (input == null || input.date() == null || input.rawDescription() == null || input.rawDescription().isBlank()
+                || input.amount() == null || input.amount().signum() < 0) throw new IllegalArgumentException("Cada transação deve ter data, descrição e valor não negativo");
             String clean = cleanDescription(input.rawDescription());
-            Category category = categorize(clean, categories);
-
-            Transaction tx = new Transaction();
-            tx.setAccount(account);
-            tx.setCategory(category);
-            tx.setRaw_description(input.rawDescription());
-            tx.setClean_description(clean);
-            tx.setAmount(input.amount());
-            tx.setTransaction_date(input.date());
-
+            Transaction tx = new Transaction(); tx.setAccount(account); tx.setCategory(categorize(clean, dictionary));
+            tx.setRaw_description(input.rawDescription()); tx.setClean_description(clean); tx.setAmount(input.amount()); tx.setTransaction_date(input.date());
+            tx.setSource(source);
             toSave.add(tx);
         }
-
-        transactionRepository.saveAll(toSave);
-        return toSave.size();
+        return transactions.saveAll(toSave);
     }
-
     public String cleanDescription(String raw) {
         if (raw == null || raw.isBlank()) return "SEM DESCRICAO";
-
-        return raw.toUpperCase()
-            // remove *1234 (código de terminal)
-            .replaceAll("\\*\\d+", "")
-            // remove prefixos de compra/pix/transferência
+        return raw.toUpperCase().replaceAll("\\*\\d+", "")
             .replaceAll("\\b(COMPRA|PAGAMENTO|TRANSFERENCIA|PIX|DEBITO|CREDITO|VISA|MASTER|ELO)\\b", "")
-            // remove cidades brasileiras comuns
             .replaceAll("\\b(SAO PAULO|RIO DE JANEIRO|BELO HORIZONTE|CURITIBA|BRASILIA|SP|RJ|MG|PR|DF|BA|PE)\\b", "")
-            // remove números soltos (ex: terminais, datas)
-            .replaceAll("\\b\\d{4,}\\b", "")
-            // remove espaços duplos
-            .replaceAll("\\s{2,}", " ")
-            .trim();
+            .replaceAll("\\b\\d{4,}\\b", "").replaceAll("\\s{2,}", " ").trim();
     }
-
-    public Category categorize(String cleanDesc, List<Category> categories) {
-        String upper = cleanDesc.toUpperCase();
-
-        for (Category cat : categories) {
-            if (cat.getKeywords() == null) continue;
-
-            String[] keywords = cat.getKeywords().split(",");
-            for (String kw : keywords) {
-                if (upper.contains(kw.trim().toUpperCase())) {
-                    return cat;
-                }
-            }
+    public Category categorize(String description, List<Category> dictionary) {
+        String upper = description.toUpperCase();
+        for (Category category : dictionary) {
+            if (category.getKeywords() != null && Arrays.stream(category.getKeywords().split(","))
+                .map(String::trim).filter(keyword -> !keyword.isEmpty()).anyMatch(keyword -> upper.contains(keyword.toUpperCase()))) return category;
         }
-
-        return categories.stream()
-            .filter(c -> c.getName().equalsIgnoreCase("Outros"))
-            .findFirst()
-            .orElse(categories.get(0));
+        return dictionary.stream().filter(c -> c.getName().equalsIgnoreCase("Outros")).findFirst()
+            .orElseThrow(() -> new IllegalStateException("Cadastre uma categoria chamada Outros"));
     }
-
-    public List<Transaction> findByAccount(UUID accountId) {
-        return transactionRepository.findByAccount_IdAccount(accountId);
+    @Transactional(readOnly = true)
+    public Page<Transaction> findByAccount(UUID accountId, TransactionSource source, Pageable pageable) {
+        if (!accounts.existsById(accountId)) throw new ResourceNotFoundException("Conta não encontrada");
+        return source == null ? transactions.findByAccount_IdAccount(accountId, pageable)
+            : transactions.findByAccountAndSource(accountId, source, pageable);
     }
 }

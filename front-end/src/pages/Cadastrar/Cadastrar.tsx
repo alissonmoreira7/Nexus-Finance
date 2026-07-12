@@ -1,28 +1,30 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './style.css'
 import nexus_logo from '../../assets/nexus_logo.png'
 import EmailInput from '../../components/input/EmailInput'
 import PasswordInput from '../../components/input/SenhaInput'
 import { useGoogleLogin } from '@react-oauth/google'
+import { useAuth } from '../../contexts/AuthContext'
 
 function Cadastrar() {
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
+  const [cpf, setCpf] = useState('')
   const [senha, setSenha] = useState('')
   const [confirmarSenha, setConfirmarSenha] = useState('')
   const [erroSenha, setErroSenha] = useState('')
+  const { register, isLoading } = useAuth()
+  const navigate = useNavigate()
 
   const cadastrarComGoogle = useGoogleLogin({
-    onSuccess: (response) => {
-      console.log('Token do Google:', response.access_token)
-    },
+    onSuccess: () => setErroSenha('Cadastro com Google ainda não está disponível.'),
     onError: () => {
-      console.log('Falha na autenticação com o Google')
+      setErroSenha('Falha na autenticação com o Google.')
     }
   })
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErroSenha('')
 
@@ -36,7 +38,12 @@ function Cadastrar() {
       return
     }
 
-    console.log('Criando conta:', { nome, email, senha })
+    try {
+      await register(nome, cpf, email, senha)
+      navigate('/dashboard')
+    } catch (error) {
+      setErroSenha(error instanceof Error ? error.message : 'Não foi possível criar a conta.')
+    }
   }
 
   return (
@@ -72,7 +79,13 @@ function Cadastrar() {
 
           <EmailInput value={email} onChange={setEmail} />
 
-          <PasswordInput value={senha} onChange={setSenha} />
+          <div className="input_email">
+            <label className="input_email_titulo" htmlFor="cpf">CPF</label>
+            <input id="cpf" inputMode="numeric" value={cpf} onChange={(e) => setCpf(e.target.value)}
+              placeholder="Somente 11 dígitos" minLength={11} maxLength={14} required />
+          </div>
+
+          <PasswordInput value={senha} onChange={(value) => { setSenha(value); setErroSenha('') }} autoComplete="new-password" />
 
           <PasswordInput
             value={confirmarSenha}
@@ -81,6 +94,8 @@ function Cadastrar() {
               setErroSenha('')
             }}
             placeholder="Repita a senha"
+            label="Confirmar senha"
+            autoComplete="new-password"
           />
 
           {erroSenha && (
@@ -89,8 +104,8 @@ function Cadastrar() {
             </p>
           )}
 
-          <button type="submit" className="btn-entrar">
-            Criar conta
+          <button type="submit" className="btn-entrar" disabled={isLoading}>
+            {isLoading ? 'Criando...' : 'Criar conta'}
           </button>
 
           <div className="divisor">
