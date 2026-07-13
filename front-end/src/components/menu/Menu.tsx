@@ -25,7 +25,7 @@ function Menu() {
           <span>Nexus<em>Finance</em></span>
         </Link>
 
-        <button 
+        <button
           className="menu-toggle"
           onClick={toggleMenu}
           aria-label="Toggle menu"
@@ -64,7 +64,7 @@ function Menu() {
         <Link to="/configuracoes" className="menu-icon-btn" title="Configurações">
           <Settings size={20} />
         </Link>
-        <button 
+        <button
           className="menu-icon-btn logout"
           onClick={handleLogout}
           title="Sair"
