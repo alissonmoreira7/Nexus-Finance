@@ -33,4 +33,5 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     java.util.List<Object[]> sumExpensesByCategory(@Param("accountId") UUID accountId,
                                                     @Param("start") LocalDate start,
                                                     @Param("end") LocalDate end);
+
 }

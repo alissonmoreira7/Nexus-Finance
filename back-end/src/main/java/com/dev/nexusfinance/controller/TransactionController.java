@@ -10,9 +10,11 @@ import java.util.*;
 
 @RestController @RequestMapping("/api/v1/transactions")
 public class TransactionController {
+
     private final TransactionEngineService service;
     private final com.dev.nexusfinance.services.AccountService accounts;
     public TransactionController(TransactionEngineService service, com.dev.nexusfinance.services.AccountService accounts) { this.service = service; this.accounts = accounts; }
+
     @PostMapping("/upload") public ResponseEntity<UploadResult> upload(@RequestAttribute UUID authenticatedUserId, @RequestParam UUID accountId, @RequestBody List<TransactionEngineService.TransactionInput> inputs) {
         accounts.assertOwnership(accountId, authenticatedUserId);
         int count = service.processLote(accountId, inputs);
@@ -20,18 +22,26 @@ public class TransactionController {
     }
 
     @PostMapping("/manual") public ResponseEntity<TransactionView> manual(@RequestAttribute UUID authenticatedUserId,
-            @RequestParam UUID accountId, @RequestBody TransactionEngineService.TransactionInput input) {
+        @RequestParam UUID accountId, @RequestBody TransactionEngineService.TransactionInput input) {
         accounts.assertOwnership(accountId, authenticatedUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(view(service.processManual(accountId, input)));
     }
     @GetMapping("/account/{accountId}") public PageResponse<TransactionView> statement(@RequestAttribute UUID authenticatedUserId, @PathVariable UUID accountId,
-            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,
-            @RequestParam(required = false) com.dev.nexusfinance.models.TransactionSource source) {
+    @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,
+    @RequestParam(required = false) com.dev.nexusfinance.models.TransactionSource source) {
         accounts.assertOwnership(accountId, authenticatedUserId);
         if (page < 0 || size < 1 || size > 100) throw new IllegalArgumentException("Paginação inválida; size deve estar entre 1 e 100");
         Page<Transaction> result = service.findByAccount(accountId, source, PageRequest.of(page, size));
         return new PageResponse<>(result.getContent().stream().map(this::view).toList(), result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());
     }
+
+    // DELETE /api/v1/transactions/{id}
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.deleteTransaction(id);
+        return ResponseEntity.noContent().build();
+    }
+
     private TransactionView view(Transaction t) { return new TransactionView(t.getIdTransaction(), t.getClean_description(), t.getCategory().getName(), t.getCategory().getType().name(), t.getSource().name(), t.getAmount(), t.getTransaction_date()); }
     public record UploadResult(String message, int inserted) {}
     public record TransactionView(UUID id, String cleanDescription, String category, String type, String source, BigDecimal amount, LocalDate transactionDate) {}
