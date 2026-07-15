@@ -1,5 +1,6 @@
 package com.dev.nexusfinance.services;
 
+import com.dev.nexusfinance.exceptions.UnauthorizedException;
 import com.dev.nexusfinance.models.User;
 import com.dev.nexusfinance.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Value;

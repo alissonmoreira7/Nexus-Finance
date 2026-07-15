@@ -1,5 +1,7 @@
 package com.dev.nexusfinance.services;
 
+import com.dev.nexusfinance.exceptions.ResourceNotFoundException;
+import com.dev.nexusfinance.exceptions.UnauthorizedException;
 import com.dev.nexusfinance.models.Account;
 import com.dev.nexusfinance.repositories.AccountRepository;
 import com.dev.nexusfinance.repositories.UserRepository;

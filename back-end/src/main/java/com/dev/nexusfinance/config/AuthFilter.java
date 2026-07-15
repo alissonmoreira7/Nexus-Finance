@@ -1,5 +1,6 @@
 package com.dev.nexusfinance.config;
 
+import com.dev.nexusfinance.exceptions.UnauthorizedException;
 import com.dev.nexusfinance.services.AuthService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -20,10 +21,10 @@ public class AuthFilter implements Filter {
         if (publicRoute) { chain.doFilter(request, response); return; }
         String header = http.getHeader("Authorization");
         try {
-            if (header == null || !header.startsWith("Bearer ")) throw new com.dev.nexusfinance.services.UnauthorizedException("Autenticação obrigatória");
+            if (header == null || !header.startsWith("Bearer ")) throw new UnauthorizedException("Autenticação obrigatória");
             http.setAttribute("authenticatedUserId", authService.validate(header.substring(7)));
             chain.doFilter(request, response);
-        } catch (com.dev.nexusfinance.services.UnauthorizedException exception) {
+        } catch (UnauthorizedException exception) {
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setStatus(401);
             httpResponse.setContentType("application/json");

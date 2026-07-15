@@ -1,7 +1,7 @@
 package com.dev.nexusfinance.controller;
 
-import com.dev.nexusfinance.services.ResourceNotFoundException;
-import com.dev.nexusfinance.services.UnauthorizedException;
+import com.dev.nexusfinance.exceptions.ResourceNotFoundException;
+import com.dev.nexusfinance.exceptions.UnauthorizedException;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;

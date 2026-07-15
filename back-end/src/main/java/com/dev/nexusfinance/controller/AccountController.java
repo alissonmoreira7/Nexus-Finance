@@ -1,5 +1,6 @@
 package com.dev.nexusfinance.controller;
 
+import com.dev.nexusfinance.exceptions.UnauthorizedException;
 import com.dev.nexusfinance.models.Account;
 import com.dev.nexusfinance.services.AccountService;
 import org.springframework.http.*;
@@ -14,7 +15,7 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.CREATED).body(view(service.create(authenticatedUserId, request.bankName())));
     }
     @GetMapping("/user/{userId}") public List<AccountView> byUser(@RequestAttribute UUID authenticatedUserId, @PathVariable UUID userId) {
-        if (!authenticatedUserId.equals(userId)) throw new com.dev.nexusfinance.services.UnauthorizedException("Acesso negado");
+        if (!authenticatedUserId.equals(userId)) throw new UnauthorizedException("Acesso negado");
         return service.findByUser(userId).stream().map(this::view).toList();
     }
     @DeleteMapping("/{id}") public ResponseEntity<Void> delete(@RequestAttribute UUID authenticatedUserId, @PathVariable UUID id) { service.assertOwnership(id, authenticatedUserId); service.delete(id); return ResponseEntity.noContent().build(); }

@@ -1,5 +1,6 @@
 package com.dev.nexusfinance.services;
 
+import com.dev.nexusfinance.exceptions.ResourceNotFoundException;
 import com.dev.nexusfinance.models.*;
 import com.dev.nexusfinance.repositories.*;
 import org.springframework.data.domain.*;
