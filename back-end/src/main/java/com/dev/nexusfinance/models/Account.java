@@ -2,9 +2,12 @@ package com.dev.nexusfinance.models;
 
 import jakarta.persistence.*;
 import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "tb_accounts")
+@Getter @Setter
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -17,12 +20,5 @@ public class Account {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="id_user", nullable = false)
     private User user;
-
-    public UUID getIdAccount() { return idAccount; }
-    public void setIdAccount(UUID idAccount) { this.idAccount = idAccount; }
-    public String getBankName() { return bankName; }
-    public void setBankName(String bankName) { this.bankName = bankName; }
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
 }
 
