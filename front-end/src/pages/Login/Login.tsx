@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
 import { useAuth } from '../../contexts/AuthContext'
 import './style.css'
@@ -11,7 +11,7 @@ function Login() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [error, setError] = useState('')
-  const { login, isLoading } = useAuth()
+  const { login, isAuthenticated, isLoading } = useAuth()
   const navigate = useNavigate()
 
   const loginComGoogle = useGoogleLogin({
@@ -28,9 +28,14 @@ function Login() {
     try {
       await login(email, senha)
       navigate('/dashboard')
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao fazer login')
     }
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />
   }
 
   return (

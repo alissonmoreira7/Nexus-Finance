@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import './style.css'
 import nexus_logo from '../../assets/nexus_logo.png'
 import EmailInput from '../../components/input/EmailInput'
@@ -14,7 +14,7 @@ function Cadastrar() {
   const [senha, setSenha] = useState('')
   const [confirmarSenha, setConfirmarSenha] = useState('')
   const [erroSenha, setErroSenha] = useState('')
-  const { register, isLoading } = useAuth()
+  const { register, isAuthenticated, isLoading } = useAuth()
   const navigate = useNavigate()
 
   const cadastrarComGoogle = useGoogleLogin({
@@ -44,6 +44,10 @@ function Cadastrar() {
     } catch (error) {
       setErroSenha(error instanceof Error ? error.message : 'Não foi possível criar a conta.')
     }
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />
   }
 
   return (

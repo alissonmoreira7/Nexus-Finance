@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { api } from '../services/api'
+import { api, AUTH_UNAUTHORIZED_EVENT } from '../services/api'
 
 export interface User { id: string; email: string; name: string }
 interface LoginResponse { token: string; user: User }
@@ -16,19 +16,54 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+
+  const clearSession = () => {
+    localStorage.removeItem('authToken')
+    localStorage.removeItem('user')
+    setUser(null)
+  }
+
   useEffect(() => {
-    const token = localStorage.getItem('authToken'), stored = localStorage.getItem('user')
-    if (token && stored) try { setUser(JSON.parse(stored) as User) } catch { localStorage.clear() }
-    setIsLoading(false)
+    const handleUnauthorized = () => setUser(null)
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized)
+
+    const restoreSession = async () => {
+      if (!localStorage.getItem('authToken')) {
+        setIsLoading(false)
+        return
+      }
+
+      try {
+        const authenticatedUser = await api<User>('/users/me')
+        localStorage.setItem('user', JSON.stringify(authenticatedUser))
+        setUser(authenticatedUser)
+      } catch {
+        clearSession()
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    void restoreSession()
+    return () => window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized)
   }, [])
 
   const persistLogin = (result: LoginResponse) => {
-    localStorage.setItem('authToken', result.token); localStorage.setItem('user', JSON.stringify(result.user)); setUser(result.user)
+    localStorage.setItem('authToken', result.token)
+    localStorage.setItem('user', JSON.stringify(result.user))
+    setUser(result.user)
   }
   const login = async (email: string, password: string) => {
     setIsLoading(true)
-    try { persistLogin(await api<LoginResponse>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) })) }
-    finally { setIsLoading(false) }
+    try {
+      const result = await api<LoginResponse>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: email.trim(), password }),
+      })
+      persistLogin(result)
+    } finally {
+      setIsLoading(false)
+    }
   }
   const register = async (name: string, cpf: string, email: string, password: string) => {
     setIsLoading(true)
@@ -39,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await api('/accounts', { method: 'POST', body: JSON.stringify({ bankName: 'Conta principal' }) })
     } finally { setIsLoading(false) }
   }
-  const logout = () => { localStorage.removeItem('authToken'); localStorage.removeItem('user'); setUser(null) }
+  const logout = clearSession
   return <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, register, logout }}>{children}</AuthContext.Provider>
 }
 
