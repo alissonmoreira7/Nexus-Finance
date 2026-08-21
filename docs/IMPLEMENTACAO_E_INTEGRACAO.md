@@ -63,16 +63,17 @@ npm install
 npm run dev
 ```
 
-Abra `http://localhost:5173`. Por padrão a API está em `http://localhost:8080/api/v1`. Para mudar, crie `front-end/.env.local`:
+Abra `http://localhost:5173`. Por padrão a API está em `http://localhost:8081/api/v1`. Para mudar, crie `front-end/.env.local`:
 
 ```dotenv
-VITE_API_URL=http://localhost:8080/api/v1
+VITE_API_URL=http://localhost:8081/api/v1
 ```
 
 Variáveis do backend:
 
 | Variável | Padrão local | Uso |
 |---|---|---|
+| `SERVER_PORT` | `8081` | porta HTTP da API |
 | `DB_URL` | `jdbc:mysql://localhost:3307/nexus_finance_db` | conexão MySQL |
 | `DB_USER` | `admin` | usuário do banco |
 | `DB_PASSWORD` | `admin` | senha do banco |
