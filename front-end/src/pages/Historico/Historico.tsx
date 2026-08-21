@@ -44,8 +44,15 @@ export default function Historico() {
     {(error || accountError) && <div className="state-box error" role="alert">{error || accountError}</div>}
     {loading ? <div className="state-box">Carregando transações...</div> : result.content.length ? <>
       <div className="transaction-feed">{result.content.map(item => <article key={item.id} className="transaction-item">
-        <div className={`transaction-icon ${item.type === 'INCOME' ? 'income' : 'expense'}`}>{item.type === 'INCOME' ? <ArrowDownLeft size={20} /> : <ArrowUpRight size={20} />}</div>
-        <div className="transaction-copy"><strong>{item.cleanDescription}</strong><span>{item.category} · {new Date(`${item.transactionDate}T00:00:00`).toLocaleDateString('pt-BR')}</span><small className={`source-badge ${item.source.toLowerCase()}`}>{item.source === 'MANUAL' ? 'Manual' : 'CSV'}</small></div>
+        <div className={`transaction-icon ${item.type === 'INCOME' ? 'income' : 'expense'}`}>
+          {item.type === 'INCOME' ? <ArrowDownLeft size={20} /> : <ArrowUpRight size={20} />}
+        </div>
+        
+        <div className="transaction-copy">
+          <strong>{item.cleanDescription}</strong><span>{item.category} · {new Date(`${item.transactionDate}T00:00:00`).toLocaleDateString('pt-BR')}</span>
+          <small className={`source-badge ${item.source.toLowerCase()}`}>{item.source === 'MANUAL' ? 'Manual' : 'CSV'}</small>
+        </div>
+        
         <strong className={item.type === 'INCOME' ? 'amount-income' : 'amount-expense'}>{item.type === 'INCOME' ? '+' : '-'} {money(item.amount)}</strong>
       </article>)}</div>
       <div className="pagination"><button className="secondary-action" disabled={page === 0} onClick={() => setPage(value => value - 1)}><ChevronLeft size={18} /> Anterior</button><span>{page + 1} de {result.totalPages}</span><button className="secondary-action" disabled={page + 1 >= result.totalPages} onClick={() => setPage(value => value + 1)}>Próxima <ChevronRight size={18} /></button></div>
