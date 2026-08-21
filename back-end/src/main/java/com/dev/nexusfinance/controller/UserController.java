@@ -8,8 +8,24 @@ import java.util.UUID;
 @RestController @RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService service;
-    public UserController(UserService service) { this.service = service; }
-    @PostMapping public ResponseEntity<User> create(@RequestBody User user) { return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user)); }
-    @GetMapping("/me") public User me(@RequestAttribute UUID authenticatedUserId) { return service.findById(authenticatedUserId); }
-    @DeleteMapping("/me") public ResponseEntity<Void> delete(@RequestAttribute UUID authenticatedUserId) { service.delete(authenticatedUserId); return ResponseEntity.noContent().build(); }
+
+    public UserController(UserService service) {
+        this.service = service;
+    }
+    @PostMapping
+    public ResponseEntity<User> create(@RequestBody User user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user));
+    }
+    @GetMapping("/me")
+    public UserView me(@RequestAttribute UUID authenticatedUserId) {
+        User user = service.findById(authenticatedUserId);
+        return new UserView(user.getIdUser(), user.getName(), user.getEmail());
+    }
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> delete(@RequestAttribute UUID authenticatedUserId) {
+        service.delete(authenticatedUserId);
+        return ResponseEntity.noContent().build();
+    }
+
+    public record UserView(UUID id, String name, String email) {}
 }

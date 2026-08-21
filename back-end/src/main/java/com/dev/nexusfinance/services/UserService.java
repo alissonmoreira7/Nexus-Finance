@@ -2,6 +2,8 @@ package com.dev.nexusfinance.services;
 
 import com.dev.nexusfinance.exceptions.ResourceNotFoundException;
 import com.dev.nexusfinance.models.User;
+import com.dev.nexusfinance.models.PlanType;
+import com.dev.nexusfinance.models.UserRole;
 import com.dev.nexusfinance.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +31,8 @@ public class UserService {
         user.setCpf(cpf);
         user.setEmail(email);
         user.setPassword(passwordService.hash(user.getPassword()));
+        user.setRole(UserRole.USER);
+        user.setPlan(PlanType.BASIC);
         return userRepository.save(user);
     }
 
