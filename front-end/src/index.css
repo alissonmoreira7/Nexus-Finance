@@ -154,7 +154,21 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  min-width: 320px;
+  background: var(--bg-page);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--bg-page);
+  font-family: var(--font-sans);
+}
+
 #root {
+  width: 100%;
   min-height: 100vh;
   display: flex;
   flex-direction: column;

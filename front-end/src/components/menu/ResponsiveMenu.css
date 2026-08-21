@@ -77,3 +77,66 @@
 @media (min-width: 761px) {
   .bottom-nav { bottom: 18px; border-radius: 22px; border-bottom: 1px solid rgba(175, 169, 236, .15); }
 }
+
+@media (max-width: 380px) {
+  .bottom-nav {
+    min-height: 66px;
+    padding-inline: 4px;
+    gap: 2px;
+  }
+
+  .bottom-nav-item { font-size: 9px; }
+  .bottom-nav-item svg { width: 19px; height: 19px; }
+  .add-transaction-nav { font-size: 9px; }
+  .add-icon { width: 50px; height: 50px; margin-top: -22px; border-width: 4px; }
+}
+
+@media (min-width: 1024px) {
+  .bottom-nav {
+    inset: 0 auto 0 0;
+    transform: none;
+    width: 240px;
+    min-height: 100vh;
+    padding: 118px 18px 28px;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(5, min-content);
+    align-content: start;
+    gap: 9px;
+    border: 0;
+    border-right: 1px solid rgba(175, 169, 236, .15);
+    border-radius: 0;
+    box-shadow: 12px 0 35px rgba(8, 7, 18, .25);
+  }
+
+  .bottom-nav::before {
+    content: 'NEXUS  FINANCE';
+    position: absolute;
+    top: 34px;
+    left: 28px;
+    color: #afa9ec;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2px;
+  }
+
+  .bottom-nav-item,
+  .add-transaction-nav {
+    min-height: 50px;
+    padding: 0 14px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    border-radius: 13px;
+    font-size: 14px;
+  }
+
+  .add-icon {
+    width: 34px;
+    height: 34px;
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .add-icon svg { width: 21px; height: 21px; }
+}

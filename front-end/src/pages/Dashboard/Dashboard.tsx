@@ -49,7 +49,7 @@ function Dashboard() {
   const categories = Object.entries(summary.expensesByCategory)
   const largestCategory = Math.max(1, ...categories.map(([, value]) => value))
 
-  return <MobileLayout eyebrow="Visão geral" title={`Olá, ${user?.name.split(' ')[0] ?? ''}`} subtitle="Seu resumo financeiro do mês atual.">
+  return <MobileLayout wide eyebrow="Visão geral" title={`Olá, ${user?.name.split(' ')[0] ?? ''}`} subtitle="Seu resumo financeiro do mês atual.">
       {error && <div className="dashboard-error" role="alert">{error}</div>}
       {isLoading ? <div className="dashboard-state">Carregando seus dados...</div> : <>
         <div className="cards-container">
