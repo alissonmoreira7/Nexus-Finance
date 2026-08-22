@@ -1,17 +1,18 @@
 <div align="center">
-    
-   
-    ███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗
-    ████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝
-    ██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║███████╗
-    ██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║
-    ██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║
-    ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
-    F I N A N C E
-    
-    Open Finance Data Engine
-    
-    Ingestão · Sanitização · Categorização automática de transações financeiras
+
+<pre align="center">
+███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗
+████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝
+██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║███████╗
+██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║
+██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║
+╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
+F I N A N C E
+</pre>
+
+**Open Finance Data Engine**
+
+Ingestão · Sanitização · Categorização automática de transações financeiras
 
 ![Stack](https://img.shields.io/badge/stack-Java%20%7C%20Spring%20Boot%20%7C%20React-534AB7?style=flat-square)
 ![Status](https://img.shields.io/badge/status-em%20desenvolvimento-1D9E75?style=flat-square)
