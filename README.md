@@ -392,42 +392,68 @@ Acesse: `http://localhost:5173`
 ## Estrutura do projeto
 
 ```
-nexus-engine/
-├── src/
-│   └── main/
-│       ├── java/com/nexusengine/
-│       │   ├── controllers/
-│       │   │   ├── TransactionController.java
-│       │   │   └── AnalyticsController.java
-│       │   ├── services/
-│       │   │   ├── TransactionEngineService.java
-│       │   │   └── AnalyticsService.java
-│       │   ├── repositories/
-│       │   │   ├── TransactionRepository.java
-│       │   │   ├── AccountRepository.java
-│       │   │   ├── CategoryRepository.java
-│       │   │   └── UserRepository.java
-│       │   └── models/
-│       │       ├── Transaction.java
-│       │       ├── Account.java
-│       │       ├── CategoryType.java
-│       │       ├── Category.java
-│       │       └── User.java
-│       └── resources/
-│           └── application.properties
-├── frontend/
+nexus-finance/
+├── back-end/
 │   ├── src/
-│   │   ├── screens/
-│   │   │   ├── LoginScreen.jsx
-│   │   │   └── Dashboard.jsx
+│   │   ├── main/
+│   │   │   ├── java/com/dev/nexusfinance/
+│   │   │   │   ├── config/          # Segurança, autenticação, CORS e carga inicial
+│   │   │   │   ├── controller/      # Endpoints REST e tratamento de exceções
+│   │   │   │   ├── exceptions/      # Exceções de domínio
+│   │   │   │   ├── models/          # Entidades e enums JPA
+│   │   │   │   ├── repositories/    # Persistência e consultas Spring Data JPA
+│   │   │   │   ├── services/        # Regras de negócio e motor de transações
+│   │   │   │   └── NexusFinanceApplication.java
+│   │   │   └── resources/
+│   │   │       └── application.properties
+│   │   └── test/java/com/dev/nexusfinance/
+│   │       ├── NexusFinanceApplicationTests.java
+│   │       └── services/AuthServiceTest.java
+│   ├── docker-compose.yml            # MySQL para desenvolvimento
+│   ├── pom.xml                       # Build e dependências Maven
+│   ├── mvnw
+│   └── mvnw.cmd
+├── front-end/
+│   ├── public/                       # Arquivos públicos
+│   ├── src/
+│   │   ├── assets/                   # Imagens e identidade visual
 │   │   ├── components/
-│   │   │   └── Nex/           ← mascote com animações
-│   │   └── index.css          ← design tokens da marca
-│   └── package.json
+│   │   │   ├── button/               # Botões reutilizáveis
+│   │   │   ├── input/                # Campos de formulário
+│   │   │   ├── layout/               # Estrutura responsiva das telas
+│   │   │   ├── menu/                 # Navegação desktop e mobile
+│   │   │   └── PrivateRoute.tsx      # Proteção das rotas autenticadas
+│   │   ├── contexts/
+│   │   │   └── AuthContext.tsx       # Estado e operações de autenticação
+│   │   ├── hooks/
+│   │   │   └── useAccounts.ts        # Carregamento das contas do usuário
+│   │   ├── pages/
+│   │   │   ├── Adicionar/            # Cadastro manual de transações
+│   │   │   ├── Cadastrar/            # Cadastro de usuário
+│   │   │   ├── Dashboard/            # Resumo financeiro
+│   │   │   ├── Historico/            # Extrato paginado e filtros
+│   │   │   ├── Importar/             # Importação e prévia de CSV
+│   │   │   ├── Login/                # Autenticação
+│   │   │   └── Perfil/               # Dados e ações do perfil
+│   │   ├── services/
+│   │   │   └── api.ts                # Cliente HTTP centralizado
+│   │   ├── index.css                 # Estilos globais
+│   │   └── main.tsx                  # Providers, router e entrada da aplicação
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.json
 ├── docs/
-│   └── nexus_engine_brand.docx
+│   ├── exemplos/
+│   │   └── modelo-transacoes.csv
+│   ├── contexto.md
+│   ├── identidadevisual.md
+│   └── IMPLEMENTACAO_E_INTEGRACAO.md
 └── README.md
 ```
+
+Diretórios gerados, como `front-end/node_modules`, `front-end/dist` e
+`back-end/target`, foram omitidos da árvore.
 
 ---
 
