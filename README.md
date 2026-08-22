@@ -1,367 +1,446 @@
-# Nexus Finance
+<div align="center">
+    
+   
+    ███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗
+    ████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝
+    ██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║███████╗
+    ██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║
+    ██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║
+    ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝
+    F I N A N C E
+    
+    Open Finance Data Engine
+    
+    Ingestão · Sanitização · Categorização automática de transações financeiras
 
-Aplicação web para organizar movimentações financeiras, importar extratos CSV e transformar descrições bancárias em informações categorizadas.
+![Stack](https://img.shields.io/badge/stack-Java%20%7C%20Spring%20Boot%20%7C%20React-534AB7?style=flat-square)
+![Status](https://img.shields.io/badge/status-em%20desenvolvimento-1D9E75?style=flat-square)
+![Version](https://img.shields.io/badge/vers%C3%A3o-1.0.0-7F77DD?style=flat-square)
 
-O projeto possui uma interface React, uma API REST em Spring Boot e persistência em MySQL. Depois do cadastro, o usuário recebe uma conta principal, pode adicionar ou importar transações e acompanhar o resumo financeiro do mês.
+</div>
 
-> Status: em desenvolvimento. Cadastro e login com e-mail e senha funcionam. O botão do Google ainda não está integrado ao backend.
+---
 
-## Funcionalidades
+## Sobre o projeto
 
-- Cadastro e autenticação de usuários;
-- proteção de rotas e dados por usuário;
-- criação automática de uma conta principal;
-- dashboard com receitas, despesas, saldo e gastos por categoria;
-- cadastro manual de transações;
-- importação de até 10.000 transações por CSV;
-- limpeza e categorização automática de descrições;
-- histórico paginado e filtrado pela origem;
-- exclusão de transações, contas e perfil.
+O **Nexus Finance** é um sistema full-stack focado na ingestão, sanitização e categorização automática de transações financeiras. O sistema simula o recebimento de extratos bancários brutos no padrão Open Finance, limpa os ruídos dos dados, aplica regras de negócio para categorizar despesas e expõe esses dados via endpoints REST para consumo de interfaces web e mobile.
 
-## Tecnologias
+> **Por que Nexus?** Nexus significa *ponto de conexão* — exatamente o que o sistema faz: conectar dados financeiros brutos a insights estruturados e acionáveis.
 
-| Camada | Tecnologias |
-| --- | --- |
-| Frontend | React 19, TypeScript, Vite 6, React Router, Lucide React e CSS |
-| Backend | Java 17, Spring Boot 4, Spring Web MVC, Spring Data JPA e Maven |
-| Dados | MySQL 8 e Hibernate |
+---
+
+## Conheça o Nex
+
+O Nexus Engine conta com o **Nex**, um assistente de IA embutido no app que aparece na tela com insights personalizados baseados nos seus próprios gastos.
+
+```
+    ╭─────────────────────────────╮
+    │  Você gastou 38% a mais em  │
+    │  iFood este mês!            │
+    ╰──────╮──────────────────────╯
+           │
+        ╭──┴──╮
+       ╭╯ ◉ ◉╰╮   ← Nex, seu amigo financeiro
+       │   N   │
+       ╰───────╯
+```
+
+O Nex tem 5 estados de animação:
+
+| Estado | Quando aparece | Cor de acento |
+|--------|----------------|---------------|
+| **Idle** | Dashboard aberto | `#7F77DD` Violet |
+| **Insight** | Padrão de gasto detectado | `#1D9E75` Teal |
+| **Alerta** | Limite de categoria ultrapassado | `#E24B4A` Red |
+| **Feliz** | Meta de economia batida | `#AFA9EC` Light Violet |
+| **Pensando** | Processando extrato CSV | `#534AB7` Purple |
+
+---
+
 
 ## Arquitetura
 
+O Nexus Finance segue uma arquitetura cliente-servidor em camadas. O front-end React
+controla navegação, sessão e apresentação; o back-end Spring Boot concentra
+autenticação, regras de negócio e persistência.
+
+```mermaid
+flowchart LR
+    subgraph Client["Front-end · React + TypeScript"]
+        Pages["Páginas<br/>Login · Dashboard · Importar<br/>Adicionar · Histórico · Perfil"]
+        Auth["AuthContext + PrivateRoute<br/>sessão e rotas protegidas"]
+        Api["api.ts<br/>cliente HTTP + Bearer token"]
+        Pages --> Auth
+        Pages --> Api
+        Auth --> Api
+    end
+
+    subgraph Server["Back-end · Spring Boot"]
+        Security["Spring Security + AuthFilter<br/>validação do token HMAC-SHA256"]
+        Controllers["Controllers REST<br/>Auth · User · Account<br/>Transaction · Category · Analytics"]
+        Services["Services<br/>autenticação · contas · usuários<br/>motor de transações · analytics"]
+        Repositories["Spring Data JPA<br/>Repositories"]
+        Security --> Controllers
+        Controllers --> Services
+        Services --> Repositories
+    end
+
+    DB[("MySQL<br/>tb_users · tb_accounts<br/>tb_categories · tb_transactions")]
+
+    Api -- "JSON / HTTP<br/>/api/v1" --> Security
+    Repositories --> DB
+```
+
+### Responsabilidades das camadas
+
+| Camada | Responsabilidade |
+|--------|------------------|
+| **Interface** | Renderiza as telas, protege rotas privadas e mantém o usuário autenticado no `AuthContext`. |
+| **Cliente HTTP** | Centraliza a URL da API, serializa JSON e envia `Authorization: Bearer <token>`; respostas `401` encerram a sessão local. |
+| **Segurança** | Mantém a API stateless, valida assinatura e expiração do token e identifica o usuário da requisição. |
+| **Controllers** | Expõem os endpoints REST, validam o acesso do usuário à conta e convertem entidades em respostas da API. |
+| **Services** | Aplicam regras de cadastro, autenticação, sanitização, categorização, importação e consolidação financeira. |
+| **Repositories** | Executam persistência, paginação e consultas agregadas por meio do Spring Data JPA. |
+| **Banco de dados** | Armazena usuários, contas, categorias e transações, incluindo a origem `CSV` ou `MANUAL`. |
+
+### Fluxo de dados
+
+#### 1. Autenticação
+
+```mermaid
+sequenceDiagram
+    actor U as Usuário
+    participant F as React / AuthContext
+    participant A as API de autenticação
+    participant D as MySQL
+
+    U->>F: Informa e-mail e senha
+    F->>A: POST /api/v1/auth/login
+    A->>D: Busca usuário e confere a senha
+    D-->>A: Usuário encontrado
+    A-->>F: Token assinado + dados do usuário
+    F->>F: Armazena sessão no localStorage
+    Note over F,A: As próximas requisições enviam o token no cabeçalho Authorization
+```
+
+O token é assinado com HMAC-SHA256, contém o identificador do usuário e expira em
+8 horas. Ao recarregar a aplicação, o front-end valida a sessão em
+`GET /api/v1/users/me`.
+
+#### 2. Entrada e processamento de transações
+
+```mermaid
+flowchart LR
+    Input["CSV no navegador<br/>ou lançamento manual"]
+    Parse["Validação e conversão<br/>data · descrição · valor"]
+    Endpoint["POST /api/v1/transactions/upload<br/>ou /api/v1/transactions/manual"]
+    Owner["Validação do token<br/>e propriedade da conta"]
+    Clean["cleanDescription()<br/>normaliza e remove ruídos"]
+    Category["categorize()<br/>compara com palavras-chave"]
+    Persist["TransactionRepository<br/>saveAll()"]
+    DB[("tb_transactions")]
+
+    Input --> Parse --> Endpoint --> Owner --> Clean --> Category --> Persist --> DB
+```
+
+Na importação, o arquivo CSV é lido pelo próprio front-end e convertido em JSON
+antes do envio. O motor aceita até 10.000 transações por lote, registra a origem
+como `CSV` (ou `MANUAL` no lançamento individual), limpa a descrição e procura a
+primeira categoria cuja palavra-chave apareça no texto. Sem correspondência, usa
+a categoria **Outros**.
+
+Exemplo de transformação:
+
 ```text
-Navegador (React)
-        |
-        | JSON + token Bearer
-        v
-API REST (Spring Boot)
-        |
-        | JPA / Hibernate
-        v
-Banco de dados (MySQL)
+Entrada:    "COMPRA VISA*1234 UBER EATS SAO PAULO"
+Descrição:  "UBER EATS"
+Categoria:  "Transporte"
+Persistido: descrição original + descrição limpa + categoria + valor + data + origem
 ```
 
-Ao receber uma transação, o motor transforma a descrição em maiúsculas, remove códigos e termos genéricos, compara o resultado com as palavras-chave das categorias e persiste os dados. Quando nenhuma regra corresponde, utiliza a categoria `Outros`.
+#### 3. Consulta e apresentação
 
-```text
-COMPRA VISA*1234 UBER TRIP SAO PAULO
-                    ↓
-                 UBER TRIP
-                    ↓
-                 Transporte
+```mermaid
+flowchart LR
+    UI["Dashboard ou Histórico"]
+    API["API REST autenticada"]
+    Access["Validação da conta"]
+    Query["Consultas JPA"]
+    DB[("MySQL")]
+    Result["JSON"]
+
+    UI --> API --> Access --> Query --> DB
+    DB --> Query --> Result --> UI
 ```
 
-## Autenticação
+- O **Histórico** consulta `/api/v1/transactions/account/{accountId}`, com paginação e
+  filtro opcional por origem (`CSV` ou `MANUAL`).
+- O **Dashboard** carrega as contas do usuário, busca o resumo mensal de cada uma
+  em `/api/v1/analytics/{accountId}/summary` e reúne saldos, receitas, despesas,
+  categorias e transações recentes na interface.
+- As totalizações são calculadas no banco para o mês atual; o saldo é
+  `receitas - despesas`.
 
-O fluxo utiliza um token assinado:
+---
 
-1. o usuário envia e-mail e senha para `POST /api/v1/auth/login`;
-2. o backend procura o usuário e compara a senha com o hash armazenado;
-3. se estiver correta, gera um token válido por 8 horas;
-4. o frontend guarda token e usuário no `localStorage`;
-5. as próximas requisições enviam `Authorization: Bearer <token>`;
-6. um filtro valida assinatura e validade antes de liberar a rota.
+## Stack tecnológica
 
-As senhas são protegidas com PBKDF2-HMAC-SHA256, salt aleatório e 210.000 iterações. O token atual possui formato próprio assinado com HMAC-SHA256; ele não é um JWT.
+### Back-end
+| Tecnologia | Versão | Função |
+|------------|--------|--------|
+| Java | 21+ | Linguagem principal |
+| Spring Boot | 3.x | Framework web |
+| Spring Data JPA | 3.x | ORM / persistência |
+| Hibernate | auto | Geração de DDL |
+| MySQL | 8.x | Banco de dados relacional |
+| Maven | 3.x | Build e dependências |
 
-Em produção, configure um segredo longo e aleatório em `APP_AUTH_SECRET`.
+### Front-end / Mobile
+| Tecnologia | Versão | Função |
+|------------|--------|--------|
+| React | 18.x | Interface web |
+| JavaScript / TypeScript | ES2022+ | Linguagem |
+| Chart.js | 4.x | Gráficos de analytics |
+| CSS Custom Properties | — | Design tokens da marca |
 
-## Pré-requisitos
+---
 
-- Java 17 ou superior;
-- Node.js 18 ou superior;
-- Docker com Docker Compose.
+## Modelagem de dados
 
-O Maven não precisa ser instalado globalmente porque o projeto contém o Maven Wrapper.
+```sql
+-- Usuários do sistema
+CREATE TABLE tb_users (
+  id   VARCHAR(36) PRIMARY KEY,  -- UUID
+  name VARCHAR(100) NOT NULL,
+  cpf  VARCHAR(14)  NOT NULL UNIQUE
+);
 
-## Executando localmente
+-- Contas bancárias
+CREATE TABLE tb_accounts (
+  id        VARCHAR(36) PRIMARY KEY,
+  user_id   VARCHAR(36) NOT NULL REFERENCES tb_users(id),
+  bank_name VARCHAR(50) NOT NULL  -- Ex: Nubank, Itaú, Inter
+);
 
-Abra três terminais na raiz do repositório.
+-- Dicionário de categorias
+CREATE TABLE tb_categories (
+  id       BIGINT AUTO_INCREMENT PRIMARY KEY,
+  name     VARCHAR(50)  NOT NULL,  -- Ex: Alimentação
+  type     ENUM('INCOME','EXPENSE') NOT NULL,
+  keywords VARCHAR(500) NOT NULL   -- Ex: IFOOD,MCDONALDS,BURGERKING
+);
 
-### 1. Banco de dados
+-- Tabela transacional
+CREATE TABLE tb_transactions (
+  id               VARCHAR(36)    PRIMARY KEY,
+  account_id       VARCHAR(36)    NOT NULL REFERENCES tb_accounts(id),
+  category_id      BIGINT         REFERENCES tb_categories(id),
+  raw_description  VARCHAR(255)   NOT NULL,  -- Como veio do banco
+  clean_description VARCHAR(255)  NOT NULL,  -- Após o motor
+  amount           DECIMAL(15,2)  NOT NULL,
+  transaction_date DATE           NOT NULL
+);
+```
+
+---
+
+## API RESTful
+
+### `POST /api/v1/transactions/upload`
+
+Recebe lote de transações brutas, processa sanitização e salva no banco.
+
+```json
+// Request Body
+[
+  {
+    "date": "2025-07-01",
+    "raw_description": "COMPRA VISA*1234 UBER EATS SAO PAULO",
+    "amount": 42.90,
+    "type": "EXPENSE"
+  }
+]
+
+// Response 201 Created
+{
+  "message": "Lote processado com sucesso. 1500 registros inseridos."
+}
+```
+
+---
+
+### `GET /api/v1/transactions/account/{accountId}?page=0&size=20`
+
+Retorna extrato limpo paginado do usuário.
+
+```json
+// Response 200 OK
+{
+  "content": [
+    {
+      "id": "uuid",
+      "clean_description": "UBER EATS",
+      "category": "Alimentação",
+      "amount": 42.90,
+      "transaction_date": "2025-07-01"
+    }
+  ],
+  "page": 0,
+  "size": 20,
+  "total": 150
+}
+```
+
+---
+
+### `GET /api/v1/analytics/{accountId}/summary`
+
+Totalização de gastos do mês atual por categoria.
+
+```json
+// Response 200 OK
+{
+  "total_income": 5000.00,
+  "total_expense": 2100.00,
+  "balance": 2900.00,
+  "expenses_by_category": {
+    "Alimentação": 800.00,
+    "Transporte":  300.00,
+    "Moradia":    1000.00
+  }
+}
+```
+
+> **RNF01:** Este endpoint resolve a query no banco e retorna em < 500ms.
+
+---
+
+## Motor de sanitização
+
+```java
+// Exemplo de como o motor funciona internamente
+// ENTRADA:  "COMPRA VISA*1234 UBER EATS SAO PAULO"
+// SAÍDA:    "UBER EATS"
+
+public String cleanDescription(String raw) {
+    return raw
+        .replaceAll("[*]\\d+", "")        // remove *1234
+        .replaceAll("COMPRA\\s+\\w+\\s+", "") // remove prefixo de compra
+        .replaceAll("\\s{2,}", " ")        // remove espaços duplos
+        .replaceAll("SAO PAULO|SP|RJ|MG", "") // remove cidades
+        .trim();
+}
+
+public Category categorize(String cleanDesc) {
+    if (cleanDesc.contains("UBER") || cleanDesc.contains("99"))
+        return categoryTransporte;
+    if (cleanDesc.contains("IFOOD") || cleanDesc.contains("MCDONALDS"))
+        return categoryAlimentacao;
+    // ...
+    return categoryOutros;
+}
+```
+
+## Como rodar localmente
+
+### Pré-requisitos
+
+- Java 21+
+- Maven 3.8+
+- Docker (para o MySQL)
+- Node.js 18+ (para o front-end)
+
+### 1. Suba o banco de dados
 
 ```bash
-cd back-end
-docker compose up -d
-docker compose ps
+docker run --name nexus-mysql \
+  -e MYSQL_ROOT_PASSWORD=nexus123 \
+  -e MYSQL_DATABASE=open_finance_db \
+  -p 3306:3306 \
+  -d mysql:8
 ```
 
-O ambiente local utiliza o banco `nexus_finance_db`, usuário e senha `admin` e porta `3307`.
+### 2. Configure o `application.properties`
 
-### 2. Backend
-
-Windows PowerShell:
-
-```powershell
-cd back-end
-.\mvnw.cmd spring-boot:run
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/open_finance_db
+spring.datasource.username=root
+spring.datasource.password=nexus123
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
 ```
 
-Linux ou macOS:
+### 3. Rode o back-end
 
 ```bash
-cd back-end
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
-A API estará em `http://localhost:8081/api/v1`.
-
-### 3. Frontend
+### 4. Rode o front-end
 
 ```bash
-cd front-end
+cd frontend
 npm install
 npm run dev
 ```
 
-Acesse `http://localhost:5173`.
+Acesse: `http://localhost:5173`
 
-### 4. Primeiro uso
-
-1. Selecione **Cadastre-se grátis**;
-2. informe nome, CPF com 11 dígitos, e-mail e senha de no mínimo 6 caracteres;
-3. o sistema fará login e criará a `Conta principal`;
-4. adicione uma transação ou importe um CSV;
-5. consulte o dashboard e o histórico.
-
-## Configuração
-
-### Backend
-
-| Variável | Padrão local | Finalidade |
-| --- | --- | --- |
-| `SERVER_PORT` | `8081` | Porta HTTP da API |
-| `DB_URL` | `jdbc:mysql://localhost:3307/nexus_finance_db` | Endereço JDBC |
-| `DB_USER` | `admin` | Usuário do banco |
-| `DB_PASSWORD` | `admin` | Senha do banco |
-| `APP_AUTH_SECRET` | segredo de desenvolvimento | Assinatura dos tokens |
-| `APP_CORS_ALLOWED_ORIGIN` | `http://localhost:5173` | Origem permitida pelo CORS |
-
-### Frontend
-
-| Variável | Padrão local | Finalidade |
-| --- | --- | --- |
-| `VITE_API_URL` | `http://localhost:8081/api/v1` | URL base da API |
-
-Exemplo de `front-end/.env.local`:
-
-```env
-VITE_API_URL=http://localhost:8081/api/v1
-```
-
-Exemplo para um backend externo:
-
-```env
-DB_URL=jdbc:mysql://servidor:3306/nexus_finance_db
-DB_USER=nexus_app
-DB_PASSWORD=uma-senha-forte
-APP_AUTH_SECRET=um-segredo-longo-aleatorio-e-exclusivo
-APP_CORS_ALLOWED_ORIGIN=https://seu-dominio.com
-```
-
-Não envie arquivos `.env` com segredos reais para o repositório.
-
-## Importação de CSV
-
-O arquivo aceita vírgula ou ponto e vírgula como separador.
-
-| Informação | Cabeçalhos aceitos |
-| --- | --- |
-| Data | `data`, `date`, `transactionDate` |
-| Descrição | `descricao`, `description`, `rawDescription` |
-| Valor | `valor`, `value`, `amount` |
-
-```csv
-data;descricao;valor
-2026-07-01;UBER TRIP;24,90
-2026-07-02;SALARIO EMPRESA;3500,00
-2026-07-03;IFOOD RESTAURANTE;58,40
-```
-
-Consulte também [`docs/exemplos/modelo-transacoes.csv`](docs/exemplos/modelo-transacoes.csv).
-
-Regras:
-
-- arquivo `.csv` de até 2 MB;
-- no máximo 10.000 transações;
-- datas em `AAAA-MM-DD` ou `DD/MM/AAAA`;
-- cada linha precisa de data, descrição e valor válido.
-
-## API REST
-
-URL base: `http://localhost:8081/api/v1`.
-
-Cadastro e login são públicos. As demais rotas exigem:
-
-```http
-Authorization: Bearer <token>
-```
-
-### Usuários e autenticação
-
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `POST` | `/users` | Cadastra um usuário |
-| `POST` | `/auth/login` | Retorna token e usuário |
-| `GET` | `/users/me` | Retorna o usuário autenticado |
-| `DELETE` | `/users/me` | Exclui o usuário autenticado |
-
-Cadastro:
-
-```json
-{
-  "name": "Ana Silva",
-  "cpf": "12345678901",
-  "email": "ana@email.com",
-  "password": "senha-segura"
-}
-```
-
-Login:
-
-```json
-{
-  "email": "ana@email.com",
-  "password": "senha-segura"
-}
-```
-
-Resposta:
-
-```json
-{
-  "token": "token-assinado",
-  "user": {
-    "id": "uuid-do-usuario",
-    "name": "Ana Silva",
-    "email": "ana@email.com"
-  }
-}
-```
-
-### Contas
-
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `POST` | `/accounts` | Cria uma conta |
-| `GET` | `/accounts/user/{userId}` | Lista as contas do próprio usuário |
-| `DELETE` | `/accounts/{id}` | Exclui uma conta do usuário |
-
-```json
-{
-  "bankName": "Nubank"
-}
-```
-
-### Transações
-
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `POST` | `/transactions/manual?accountId={id}` | Cadastra uma transação |
-| `POST` | `/transactions/upload?accountId={id}` | Importa um lote |
-| `GET` | `/transactions/account/{accountId}` | Retorna o histórico |
-| `DELETE` | `/transactions/{id}` | Exclui uma transação |
-
-```json
-{
-  "date": "2026-07-14",
-  "rawDescription": "UBER TRIP SAO PAULO",
-  "amount": 32.90
-}
-```
-
-No upload, envie uma lista desses objetos. O histórico aceita `page`, `size` entre 1 e 100 e `source` igual a `CSV` ou `MANUAL`:
-
-```http
-GET /api/v1/transactions/account/{accountId}?page=0&size=20&source=CSV
-```
-
-### Categorias e analytics
-
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `GET` | `/categories` | Lista as categorias |
-| `POST` | `/categories` | Cria uma categoria |
-| `GET` | `/analytics/{accountId}/summary` | Resume o mês atual |
-
-```json
-{
-  "totalIncome": 5000.00,
-  "totalExpense": 2100.00,
-  "balance": 2900.00,
-  "expensesByCategory": {
-    "Alimentação": 800.00,
-    "Transporte": 300.00
-  }
-}
-```
+---
 
 ## Estrutura do projeto
 
-```text
-nexus-finance/
-├── back-end/
-│   ├── src/main/java/com/dev/nexusfinance/
-│   │   ├── config/          # autenticação, CORS e dados iniciais
-│   │   ├── controller/      # endpoints REST
-│   │   ├── exceptions/      # erros da aplicação
-│   │   ├── models/          # entidades JPA e enums
-│   │   ├── repositories/    # acesso ao banco
-│   │   └── services/        # regras de negócio
-│   ├── src/main/resources/application.properties
-│   ├── docker-compose.yml
-│   └── pom.xml
-├── front-end/
+```
+nexus-engine/
+├── src/
+│   └── main/
+│       ├── java/com/nexusengine/
+│       │   ├── controllers/
+│       │   │   ├── TransactionController.java
+│       │   │   └── AnalyticsController.java
+│       │   ├── services/
+│       │   │   ├── TransactionEngineService.java
+│       │   │   └── AnalyticsService.java
+│       │   ├── repositories/
+│       │   │   ├── TransactionRepository.java
+│       │   │   ├── AccountRepository.java
+│       │   │   ├── CategoryRepository.java
+│       │   │   └── UserRepository.java
+│       │   └── models/
+│       │       ├── Transaction.java
+│       │       ├── Account.java
+│       │       ├── CategoryType.java
+│       │       ├── Category.java
+│       │       └── User.java
+│       └── resources/
+│           └── application.properties
+├── frontend/
 │   ├── src/
-│   │   ├── components/      # campos, menus, layout e rotas privadas
-│   │   ├── contexts/        # autenticação global
-│   │   ├── hooks/           # hooks reutilizáveis
-│   │   ├── pages/           # telas
-│   │   └── services/        # cliente da API
+│   │   ├── screens/
+│   │   │   ├── LoginScreen.jsx
+│   │   │   └── Dashboard.jsx
+│   │   ├── components/
+│   │   │   └── Nex/           ← mascote com animações
+│   │   └── index.css          ← design tokens da marca
 │   └── package.json
 ├── docs/
+│   └── nexus_engine_brand.docx
 └── README.md
 ```
 
-## Testes e verificações
+---
 
-Backend no Windows:
+## ‍Autor
 
-```powershell
-cd back-end
-.\mvnw.cmd test
-```
-
-Frontend:
-
-```bash
-cd front-end
-npm run lint
-npm run build
-```
-
-## Problemas comuns
-
-### O backend não conecta ao MySQL
-
-Execute `docker compose ps` dentro de `back-end`. Confira se a porta `3307` está livre e se as variáveis do banco correspondem ao Compose.
-
-### O navegador mostra erro de CORS
-
-`APP_CORS_ALLOWED_ORIGIN` deve ser exatamente a origem do frontend, incluindo protocolo e porta.
-
-### A API retorna 401
-
-Faça login novamente e confira o cabeçalho `Authorization`. O token expira após 8 horas.
-
-### O CSV não é aceito
-
-Confira cabeçalhos, datas, separador e limite de 2 MB. Use o exemplo da pasta `docs/exemplos`.
-
-### O botão do Google não autentica
-
-Esse fluxo ainda não está conectado ao backend. Utilize e-mail e senha.
-
-## Autor
-
-**Alisson Moreira**<br>
+**Alisson Moreira**
 Estudante de Engenharia de Software
+
+---
+
+<div align="center">
+
+**NEXUS ENGINE** · Open Finance Data Engine · v1.0.0
+
+*Construído com propósito, identidade e muito `System.out.println()` de debug.*
+
+</div>
