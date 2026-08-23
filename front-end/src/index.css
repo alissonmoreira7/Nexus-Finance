@@ -154,6 +154,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
 html {
   min-width: 320px;
   background: var(--bg-page);
