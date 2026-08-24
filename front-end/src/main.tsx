@@ -12,6 +12,7 @@ import Importar from './pages/Importar/Importar.tsx'
 import Historico from './pages/Historico/Historico.tsx'
 import Perfil from './pages/Perfil/Perfil.tsx'
 import Adicionar from './pages/Adicionar/Adicionar.tsx'
+import Relatorios from './pages/Relatorios/Relatorios.tsx'
 
 
 createRoot(document.getElementById('root')!).render(
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/historico" element={<PrivateRoute><Historico /></PrivateRoute>} />
             <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
             <Route path="/adicionar" element={<PrivateRoute><Adicionar /></PrivateRoute>} />
+            <Route path="/relatorios" element={<PrivateRoute><Relatorios /></PrivateRoute>} />
           </Routes>
         </AuthProvider>
       </GoogleOAuthProvider>
