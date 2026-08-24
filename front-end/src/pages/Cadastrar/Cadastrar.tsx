@@ -103,7 +103,7 @@ function Cadastrar() {
           />
 
           {erroSenha && (
-            <p style={{ color: '#E24B4A', fontSize: '12px', marginTop: '-8px' }}>
+            <p style={{ color: '#E24B4A', fontSize: 'var(--font-size-md)', marginTop: '-8px' }}>
               {erroSenha}
             </p>
           )}

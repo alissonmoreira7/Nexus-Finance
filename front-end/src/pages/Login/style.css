@@ -77,7 +77,7 @@
   }
 
   & .label-caps {
-    font-size: 12px;
+    font-size: var(--font-size-md);
     font-weight: 600;
     color: var(--color-purple-core);   
     letter-spacing: 8px;  
@@ -98,7 +98,7 @@
   }
  
   & p {
-    font-size: 14px;
+    font-size: var(--font-size-md);
     color: var(--color-teal-light);
     margin-top: -5px;
   }
@@ -112,19 +112,20 @@
 
   .input_email {
     .input_email_titulo{
-      font-size: 12px;
+      font-size: var(--font-size-md);
       color: var(--color-purple-light);
     }
   }
 
   .input_senha {
-      font-size: 12px;
+      font-size: var(--font-size-md);
       color: var(--color-purple-light);
     }
 }
 
 .btn-entrar {
-  height: 40px;
+  min-height: 48px;
+  height: 48px;
   background-color: var(--color-purple-mid);
   color: var(--color-teal-light);       
   
@@ -143,7 +144,7 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  font-size: 14px;
+  font-size: var(--font-size-md);
   color: var(--color-purple-light);
   white-space: nowrap;
   width: 100%; 
@@ -218,7 +219,7 @@
   color: #fca5a5;
   padding: 0.75rem;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-md);
   margin-bottom: 0.5rem;
 }
 
@@ -253,7 +254,7 @@
   .container-logo .label-caps {
     max-width: 100%;
     padding-left: 6px;
-    font-size: 10px;
+    font-size: var(--font-size-md);
     letter-spacing: 6px;
   }
 
@@ -263,7 +264,7 @@
 
   .sub-titulo p {
     max-width: 32ch;
-    font-size: 13px;
+    font-size: var(--font-size-md);
   }
 
   .form-login {
@@ -272,12 +273,12 @@
 
   .btn-entrar,
   .btn-google-custom {
-    min-height: 46px;
+    min-height: 48px;
     height: auto;
   }
 
   .criar-conta {
-    font-size: 13px;
+    font-size: var(--font-size-md);
   }
 }
 
