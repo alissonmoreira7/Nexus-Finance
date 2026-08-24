@@ -14,6 +14,7 @@ public class CategorySeeder implements CommandLineRunner {
         seed("Transporte", CategoryType.EXPENSE, "UBER,99APP,TAXI,POSTO,COMBUSTIVEL");
         seed("Moradia", CategoryType.EXPENSE, "ALUGUEL,CONDOMINIO,ENERGIA,AGUA");
         seed("Salário", CategoryType.INCOME, "SALARIO,PAGAMENTO EMPRESA");
+        seed("Outras entradas", CategoryType.INCOME, "RECEBIMENTO,REEMBOLSO,RESTITUICAO");
         seed("Outros", CategoryType.EXPENSE, "SEM CATEGORIA");
     }
     private void seed(String name, CategoryType type, String keywords) {

@@ -18,7 +18,7 @@ public class TransactionEngineService {
     public TransactionEngineService(TransactionRepository transactions, AccountRepository accounts, CategoryRepository categories) {
         this.transactions = transactions; this.accounts = accounts; this.categories = categories;
     }
-    public record TransactionInput(LocalDate date, String rawDescription, BigDecimal amount) {}
+    public record TransactionInput(LocalDate date, String rawDescription, BigDecimal amount, CategoryType type) {}
 
     @Transactional
     public int processLote(UUID accountId, List<TransactionInput> inputs) {
@@ -27,6 +27,9 @@ public class TransactionEngineService {
 
     @Transactional
     public Transaction processManual(UUID accountId, TransactionInput input) {
+        if (input == null || input.type() == null) {
+            throw new IllegalArgumentException("Informe se a transação é uma entrada ou saída");
+        }
         return processAndReturn(accountId, List.of(input), TransactionSource.MANUAL).get(0);
     }
 
@@ -49,7 +52,7 @@ public class TransactionEngineService {
             if (input == null || input.date() == null || input.rawDescription() == null || input.rawDescription().isBlank()
                 || input.amount() == null || input.amount().signum() < 0) throw new IllegalArgumentException("Cada transação deve ter data, descrição e valor não negativo");
             String clean = cleanDescription(input.rawDescription());
-            Transaction tx = new Transaction(); tx.setAccount(account); tx.setCategory(categorize(clean, dictionary));
+            Transaction tx = new Transaction(); tx.setAccount(account); tx.setCategory(categorize(clean, dictionary, input.type()));
             tx.setRaw_description(input.rawDescription()); tx.setClean_description(clean); tx.setAmount(input.amount()); tx.setTransaction_date(input.date());
             tx.setSource(source);
             toSave.add(tx);
@@ -64,13 +67,21 @@ public class TransactionEngineService {
             .replaceAll("\\b\\d{4,}\\b", "").replaceAll("\\s{2,}", " ").trim();
     }
     public Category categorize(String description, List<Category> dictionary) {
+        return categorize(description, dictionary, null);
+    }
+    public Category categorize(String description, List<Category> dictionary, CategoryType requiredType) {
         String upper = description.toUpperCase();
         for (Category category : dictionary) {
-            if (category.getKeywords() != null && Arrays.stream(category.getKeywords().split(","))
+            if ((requiredType == null || category.getType() == requiredType) && category.getKeywords() != null
+                && Arrays.stream(category.getKeywords().split(","))
                 .map(String::trim).filter(keyword -> !keyword.isEmpty()).anyMatch(keyword -> upper.contains(keyword.toUpperCase()))) return category;
         }
-        return dictionary.stream().filter(c -> c.getName().equalsIgnoreCase("Outros")).findFirst()
-            .orElseThrow(() -> new IllegalStateException("Cadastre uma categoria chamada Outros"));
+        String fallbackName = requiredType == CategoryType.INCOME ? "Outras entradas" : "Outros";
+        return dictionary.stream()
+            .filter(category -> category.getName().equalsIgnoreCase(fallbackName))
+            .filter(category -> requiredType == null || category.getType() == requiredType)
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("Cadastre uma categoria chamada " + fallbackName));
     }
     @Transactional(readOnly = true)
     public Page<Transaction> findByAccount(UUID accountId, TransactionSource source, Pageable pageable) {
