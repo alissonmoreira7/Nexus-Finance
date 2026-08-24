@@ -1,12 +1,13 @@
+import { useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Home, Upload, ReceiptText, UserRound, Plus } from 'lucide-react'
+import { Home, Menu as MenuIcon, ReceiptText, Upload } from 'lucide-react'
+import AllFeaturesSheet from './AllFeaturesSheet'
 import './ResponsiveMenu.css'
 
 const regularItems = [
   { to: '/dashboard', label: 'Início', icon: Home },
   { to: '/importar', label: 'Importar', icon: Upload },
   { to: '/historico', label: 'Histórico', icon: ReceiptText },
-  { to: '/perfil', label: 'Perfil', icon: UserRound },
 ]
 
 function MenuItem({ to, label, icon: Icon }: typeof regularItems[number]) {
@@ -16,13 +17,18 @@ function MenuItem({ to, label, icon: Icon }: typeof regularItems[number]) {
 }
 
 function ResponsiveMenu() {
-  return <nav className="bottom-nav" aria-label="Navegação principal">
-    <MenuItem {...regularItems[0]} /><MenuItem {...regularItems[1]} />
-    <NavLink to="/adicionar" aria-label="Adicionar transação"
-      className={({ isActive }) => `add-transaction-nav${isActive ? ' active' : ''}`}>
-      <span className="add-icon"><Plus size={30} strokeWidth={2.5} /></span><span>Adicionar</span>
-    </NavLink>
-    <MenuItem {...regularItems[2]} /><MenuItem {...regularItems[3]} />
-  </nav>
+  const [isAllOpen, setIsAllOpen] = useState(false)
+  const allButtonRef = useRef<HTMLButtonElement>(null)
+
+  return <>
+    <nav className="bottom-nav" aria-label="Navegação principal">
+      {regularItems.map(item => <MenuItem key={item.to} {...item} />)}
+      <button ref={allButtonRef} type="button" className={`bottom-nav-item bottom-nav-button${isAllOpen ? ' active' : ''}`}
+        onClick={() => setIsAllOpen(true)} aria-haspopup="dialog" aria-expanded={isAllOpen} aria-controls="all-features-sheet">
+        <MenuIcon size={21} strokeWidth={2.2} aria-hidden="true" /><span>Todos</span>
+      </button>
+    </nav>
+    {isAllOpen && <AllFeaturesSheet onClose={() => setIsAllOpen(false)} triggerRef={allButtonRef} />}
+  </>
 }
 export default ResponsiveMenu

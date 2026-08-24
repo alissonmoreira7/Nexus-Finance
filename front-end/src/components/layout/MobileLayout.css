@@ -1,27 +1,27 @@
 .app-shell { min-width: 0; min-height: 100vh; background: #0f0f14; color: #eeedfe; }
-.app-header { height: 62px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(175,169,236,.1); }
-.app-brand { font-size: 12px; letter-spacing: 2.5px; color: #afa9ec; font-weight: 700; }
-.app-brand em { color: #1d9e75; font-style: normal; }
+.app-header { height: 72px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(175,169,236,.1); }
+.profile-shortcut{width:54px;height:54px;display:grid;place-items:center;flex:0 0 auto;color:#fff;background:linear-gradient(135deg,#534ab7,#1d9e75);border:2px solid rgba(175,169,236,.28);border-radius:50%;font-size:var(--font-size-md);font-weight:800;letter-spacing:.4px;box-shadow:0 6px 18px rgba(8,7,18,.3);transition:transform 160ms ease,box-shadow 160ms ease}.profile-shortcut:hover{color:#fff;transform:translateY(-1px);box-shadow:0 8px 22px rgba(83,74,183,.36)}.profile-shortcut:active{transform:scale(.95)}.profile-shortcut:focus-visible{outline:2px solid #c8c3ff;outline-offset:3px}
 .app-main { width: min(100%, 800px); margin: 0 auto; padding: 26px 18px calc(104px + env(safe-area-inset-bottom)); }
 .page-heading { margin-bottom: 22px; }
-.page-eyebrow { display: block; margin-bottom: 7px; color: #7f77dd; font-size: 11px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; }
+.page-eyebrow { display: block; margin-bottom: 7px; color: #7f77dd; font-size: var(--font-size-md); font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase; }
 .page-heading h1 { margin: 0; color: #eeedfe; font-size: clamp(26px, 8vw, 38px); letter-spacing: -.8px; }
-.page-heading p { margin-top: 8px; color: #918da7; font-size: 14px; line-height: 1.5; }
+.page-heading p { margin-top: 8px; color: #918da7; font-size: var(--font-size-md); line-height: 1.5; }
 .surface { background: #1a1830; border: 1px solid rgba(175,169,236,.12); border-radius: 20px; padding: 18px; }
 .surface + .surface { margin-top: 14px; }
 .state-box { padding: 24px 18px; text-align: center; color: #918da7; background: #1a1830; border: 1px solid rgba(175,169,236,.12); border-radius: 18px; }
 .state-box.error { color: #ffaaa9; border-color: rgba(226,75,74,.35); }
-.primary-action { min-height: 48px; width: 100%; background: #534ab7; color: #fff; border-radius: 14px; font-size: 15px; }
+.primary-action { min-height: 48px; width: 100%; background: #534ab7; color: #fff; border-radius: 14px; font-size: var(--font-size-md); }
 .primary-action:hover { background: #6259c9; }
 .primary-action:disabled { opacity: .55; cursor: not-allowed; }
-.secondary-action { min-height: 44px; background: transparent; border: 1px solid rgba(175,169,236,.22); color: #afa9ec; }
-.field-label { display: block; margin-bottom: 8px; color: #afa9ec; font-size: 12px; font-weight: 600; }
+.secondary-action { min-height: 48px; background: transparent; border: 1px solid rgba(175,169,236,.22); color: #afa9ec; }
+.field-label { display: block; margin-bottom: 8px; color: #afa9ec; font-size: var(--font-size-md); font-weight: 600; }
 .field-select { min-height: 48px; background: #11101c; }
 @media (min-width: 761px) { .app-main { padding: 34px 28px 128px; } }
 
 @media (min-width: 1024px) {
   .app-shell { padding-left: 240px; }
   .app-header { height: 72px; padding-inline: clamp(32px, 5vw, 72px); }
+  .profile-shortcut{position:fixed;z-index:110;top:22px;left:24px;width:56px;height:56px}
   .app-main { padding: 42px clamp(32px, 5vw, 72px) 64px; }
   .app-main-wide { width: min(100%, 1280px); }
   .page-heading { margin-bottom: 28px; }
@@ -29,8 +29,10 @@
   .surface { padding: 22px; }
 }
 
+@media(prefers-reduced-motion:reduce){.profile-shortcut{transition:none}}
+
 @media (max-width: 480px) {
-  .app-header { height: 56px; padding-inline: 14px; }
+  .app-header { height: 72px; padding-inline: 14px; }
   .app-main { padding: 22px 14px calc(96px + env(safe-area-inset-bottom)); }
   .page-heading { margin-bottom: 18px; }
   .page-heading h1 { font-size: clamp(25px, 9vw, 32px); }
