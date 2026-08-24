@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CalendarDays, CheckCircle2, CircleDollarSign, Landmark, Text } from 'lucide-react'
+import { ArrowLeft, ArrowUpDown, CalendarDays, CheckCircle2, CircleDollarSign, Landmark, Text } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import MobileLayout from '../../components/layout/MobileLayout'
 import { useAccounts } from '../../hooks/useAccounts'
@@ -17,6 +17,7 @@ export default function Adicionar() {
   const navigate = useNavigate()
   const { accounts, isLoading: loadingAccounts, error: accountError } = useAccounts()
   const [accountId, setAccountId] = useState('')
+  const [type, setType] = useState<'EXPENSE' | 'INCOME'>('EXPENSE')
   const [date, setDate] = useState(today())
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
@@ -37,22 +38,31 @@ export default function Adicionar() {
     try {
       await api(`/transactions/manual?accountId=${selectedAccount}`, {
         method: 'POST',
-        body: JSON.stringify({ date, rawDescription: description.trim(), amount: numericAmount }),
+        body: JSON.stringify({ date, rawDescription: description.trim(), amount: numericAmount, type }),
       })
-      setSuccess(true); setDescription(''); setAmount('')
+      setSuccess(true); setDescription(''); setAmount(''); setType('EXPENSE')
     } catch (e) { setError(e instanceof Error ? e.message : 'Não foi possível salvar a transação.') }
     finally { setSaving(false) }
   }
 
-  return <MobileLayout eyebrow="Novo lançamento" title="Adicionar transação" subtitle="Registre uma movimentação e o Nexus fará a categorização automaticamente.">
+  return <MobileLayout>
+    <div className="page-back-heading">
+      <button type="button" className="page-back-button" onClick={() => navigate('/dashboard')} aria-label="Voltar para o início" title="Voltar para o início">
+        <ArrowLeft size={23} aria-hidden="true" />
+      </button>
+      <div>
+        <h1>Adicionar transação</h1>
+      </div>
+    </div>
     {(error || accountError) && <div className="state-box error" role="alert">{error || accountError}</div>}
     {success && <div className="success-banner" role="status"><CheckCircle2 size={20} />Transação adicionada com sucesso.</div>}
     <form className="surface manual-form" onSubmit={submit}>
-      <div className="manual-field"><label htmlFor="manual-account"><Landmark size={17} />Conta</label><select id="manual-account" value={selectedAccount} onChange={e => setAccountId(e.target.value)} disabled={loadingAccounts || !accounts.length} required>{accounts.map(account => <option key={account.id} value={account.id}>{account.bankName}</option>)}</select></div>
-      <div className="manual-field"><label htmlFor="manual-date"><CalendarDays size={17} />Data</label><input id="manual-date" type="date" value={date} max="2099-12-31" onChange={e => setDate(e.target.value)} required /></div>
-      <div className="manual-field"><label htmlFor="manual-description"><Text size={17} />Descrição</label><input id="manual-description" value={description} maxLength={255} onChange={e => setDescription(e.target.value)} placeholder="Ex.: UBER TRIP ou SALARIO EMPRESA" required /></div>
-      <div className="manual-field"><label htmlFor="manual-amount"><CircleDollarSign size={17} />Valor</label><div className="money-input"><span>R$</span><input id="manual-amount" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0,00" required /></div></div>
-      <p className="categorization-note">A descrição será comparada ao dicionário de categorias. Receitas como salário são identificadas automaticamente.</p>
+      <div className="manual-field manual-account"><label htmlFor="manual-account"><Landmark size={17} />Conta</label><select id="manual-account" value={selectedAccount} onChange={e => setAccountId(e.target.value)} disabled={loadingAccounts || !accounts.length} required>{accounts.map(account => <option key={account.id} value={account.id}>{account.bankName}</option>)}</select></div>
+      <div className="manual-field manual-type"><label htmlFor="manual-type"><ArrowUpDown size={17} />Tipo de movimentação</label><select id="manual-type" value={type} onChange={e => setType(e.target.value as 'EXPENSE' | 'INCOME')} required><option value="EXPENSE">Saída</option><option value="INCOME">Entrada</option></select></div>
+      <div className="manual-field manual-date"><label htmlFor="manual-date"><CalendarDays size={17} />Data</label><input id="manual-date" type="date" value={date} max="2099-12-31" onChange={e => setDate(e.target.value)} required /></div>
+      <div className="manual-field manual-description"><label htmlFor="manual-description"><Text size={17} />Descrição</label><input id="manual-description" value={description} maxLength={255} onChange={e => setDescription(e.target.value)} placeholder="Ex.: UBER TRIP ou SALARIO EMPRESA" required /></div>
+      <div className="manual-field manual-amount"><label htmlFor="manual-amount"><CircleDollarSign size={17} />Valor</label><div className="money-input"><span>R$</span><input id="manual-amount" inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0,00" required /></div></div>
+      <p className="categorization-note">Entradas somam ao saldo e saídas subtraem. A descrição será usada para escolher a categoria automaticamente.</p>
       <button className="primary-action" disabled={saving || !accounts.length}>{saving ? 'Salvando...' : 'Salvar transação'}</button>
       <button className="secondary-action" type="button" onClick={() => navigate('/historico')}>Ver histórico</button>
     </form>

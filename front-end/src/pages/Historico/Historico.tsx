@@ -29,7 +29,7 @@ export default function Historico() {
       .finally(() => setLoading(false))
   }, [selected, page, source])
 
-  return <MobileLayout eyebrow="Movimentações" title="Histórico" subtitle={`${result.totalElements} transações registradas`}>
+  return <MobileLayout title="Histórico" subtitle={`${result.totalElements} transações registradas`}>
     <section className="surface filter-card">
       <label className="field-label" htmlFor="history-account">Conta</label>
       <select id="history-account" className="field-select" value={selected} disabled={loadingAccounts || !accounts.length}

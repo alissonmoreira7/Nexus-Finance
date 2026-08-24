@@ -76,23 +76,45 @@ export default function Importar() {
     finally { setSending(false) }
   }
 
-  return <MobileLayout eyebrow="Entrada de dados" title="Importar extrato" subtitle="Envie um CSV e deixe o Nexus limpar e categorizar suas transações.">
+  return <MobileLayout title="Importar extrato" subtitle="Envie um CSV e deixe o Nexus limpar e categorizar suas transações.">
     {(error || accountError) && <div className="state-box error" role="alert">{error || accountError}</div>}
     {success && <div className="success-banner" role="status"><CheckCircle2 size={20} />{success}</div>}
     <section className="surface import-card">
-      <label className="field-label" htmlFor="account">Conta de destino</label>
+      <label className="field-label" htmlFor="account">
+        Conta de destino
+      </label>
       <select id="account" className="field-select" value={selectedAccount} onChange={e => setAccountId(e.target.value)} disabled={loadingAccounts || !accounts.length}>
         {accounts.map(account => <option key={account.id} value={account.id}>{account.bankName}</option>)}
       </select>
       <input ref={inputRef} className="sr-only" type="file" accept=".csv,text/csv" onChange={e => void chooseFile(e.target.files?.[0])} />
       <button className="drop-zone" type="button" onClick={() => inputRef.current?.click()}>
-        <UploadCloud size={34} /><strong>{fileName || 'Escolher arquivo CSV'}</strong><span>Até 2 MB · máximo de 10.000 linhas</span>
+        <UploadCloud size={34} /><strong>{fileName || 'Escolher arquivo CSV'}</strong> 
+        <span>Até 2 MB · máximo de 10.000 linhas</span>
       </button>
-      <div className="csv-help"><FileSpreadsheet size={18} /><div><strong>Formato esperado</strong><code>data;descricao;valor</code><small>Ex.: 2026-07-12;UBER TRIP;24,90</small></div></div>
+      <div className="csv-help">
+        <FileSpreadsheet size={18} />
+      <div> 
+      <strong>Formato esperado</strong>
+      <code>data;descricao;valor</code>
+      <small>Ex.: 2026-07-12;UBER TRIP;24,90</small>
+      </div></div>
     </section>
     {!!rows.length && <section className="surface preview-card">
-      <div className="section-title"><div><span>Pré-visualização</span><strong>{rows.length} registros · {total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong></div><button aria-label="Remover arquivo" onClick={() => { setRows([]); setFileName('') }}><X size={18} /></button></div>
-      <div className="preview-list">{rows.slice(0, 4).map((row, index) => <div key={`${row.date}-${index}`}><span>{row.rawDescription}</span><strong>{row.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong><small>{new Date(`${row.date}T00:00:00`).toLocaleDateString('pt-BR')}</small></div>)}</div>
+      <div className="section-title">
+        <div>
+          <span>Pré-visualização</span>
+          <strong>{rows.length} registros · {total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+        </div>
+        <button aria-label="Remover arquivo" onClick={() => { setRows([]); setFileName('') }}><X size={18} /></button>
+      </div>
+      <div className="preview-list">
+        {rows.slice(0, 4).map((row, index) => 
+        <div key={`${row.date}-${index}`}>
+          <span>{row.rawDescription}</span>
+          <strong>{row.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+          <small>{new Date(`${row.date}T00:00:00`).toLocaleDateString('pt-BR')}</small>
+        </div>)}
+      </div>
       <button className="primary-action" disabled={sending || !selectedAccount} onClick={() => void upload()}>{sending ? 'Processando...' : `Importar ${rows.length} transações`}</button>
     </section>}
   </MobileLayout>

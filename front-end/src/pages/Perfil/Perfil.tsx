@@ -20,7 +20,7 @@ export default function Perfil() {
   const name = profile?.name ?? user?.name ?? ''
   const initials = name.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase()
 
-  return <MobileLayout eyebrow="Sua conta" title="Perfil" subtitle="Dados pessoais e segurança da sessão.">
+  return <MobileLayout title="Perfil" subtitle="Dados pessoais e segurança da sessão.">
     {error && <div className="state-box error" role="alert">{error}</div>}
     <section className="surface profile-hero"><div className="avatar">{initials || 'NF'}</div><div><h2>{name}</h2><span>Membro Nexus Finance</span></div></section>
     <section className="surface profile-list">
