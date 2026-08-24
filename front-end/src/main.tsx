@@ -13,6 +13,9 @@ import Historico from './pages/Historico/Historico.tsx'
 import Perfil from './pages/Perfil/Perfil.tsx'
 import Adicionar from './pages/Adicionar/Adicionar.tsx'
 import Relatorios from './pages/Relatorios/Relatorios.tsx'
+import GastosPrevistos from './pages/GastosPrevistos/GastosPrevistos.tsx'
+import RendaMes from './pages/GastosPrevistos/RendaMes.tsx'
+import GastoPrevistoForm from './pages/GastosPrevistos/GastoPrevistoForm.tsx'
 
 
 createRoot(document.getElementById('root')!).render(
@@ -29,6 +32,10 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
             <Route path="/adicionar" element={<PrivateRoute><Adicionar /></PrivateRoute>} />
             <Route path="/relatorios" element={<PrivateRoute><Relatorios /></PrivateRoute>} />
+            <Route path="/gastos-previstos" element={<PrivateRoute><GastosPrevistos /></PrivateRoute>} />
+            <Route path="/gastos-previstos/renda" element={<PrivateRoute><RendaMes /></PrivateRoute>} />
+            <Route path="/gastos-previstos/novo" element={<PrivateRoute><GastoPrevistoForm /></PrivateRoute>} />
+            <Route path="/gastos-previstos/:expenseId/editar" element={<PrivateRoute><GastoPrevistoForm /></PrivateRoute>} />
           </Routes>
         </AuthProvider>
       </GoogleOAuthProvider>

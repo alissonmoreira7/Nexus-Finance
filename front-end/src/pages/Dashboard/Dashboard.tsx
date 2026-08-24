@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BarChart3, ChevronLeft, ChevronRight, Eye, EyeOff, Plus } from 'lucide-react'
+import { BarChart3, CalendarClock, ChevronLeft, ChevronRight, Eye, EyeOff, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import MobileLayout from '../../components/layout/MobileLayout'
 import { useAuth } from '../../contexts/AuthContext'
@@ -106,9 +106,13 @@ return <MobileLayout headerAction={<button type="button" className="privacy-togg
         </section>
 
         <nav className="dashboard-shortcuts" aria-label="Atalhos do início">
-          <Link to="/relatorios" className="reports-shortcut">
-            <span className="reports-shortcut-icon" aria-hidden="true"><BarChart3 size={23} /></span>
+          <Link to="/relatorios" className="dashboard-shortcut">
+            <span className="dashboard-shortcut-icon" aria-hidden="true"><BarChart3 size={23} /></span>
             <strong>Relatórios</strong>
+          </Link>
+          <Link to="/gastos-previstos" className="dashboard-shortcut">
+            <span className="dashboard-shortcut-icon" aria-hidden="true"><CalendarClock size={23} /></span>
+            <strong>Gastos previstos</strong>
           </Link>
         </nav>
 
