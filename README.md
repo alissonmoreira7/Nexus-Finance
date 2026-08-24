@@ -367,9 +367,31 @@ docker run --name nexus-mysql \
 spring.datasource.url=jdbc:mysql://localhost:3306/open_finance_db
 spring.datasource.username=root
 spring.datasource.password=nexus123
-spring.jpa.hibernate.ddl-auto=update
+spring.jpa.hibernate.ddl-auto=validate
+spring.flyway.baseline-on-migrate=${FLYWAY_BASELINE_ON_MIGRATE:false}
+spring.flyway.baseline-version=${FLYWAY_BASELINE_VERSION:1}
 spring.jpa.show-sql=true
 ```
+
+O Flyway executa automaticamente as migrations de `back-end/src/main/resources/db/migration` antes de o Hibernate validar o schema.
+
+- Em um banco vazio, não é necessário configurar o baseline: `V1` cria o schema inicial, `V2` cria as tabelas de gastos previstos e `V3` adiciona as validações monetárias.
+- Em um banco antigo criado por `ddl-auto=update`, faça backup e habilite o baseline somente na primeira inicialização.
+- Use `FLYWAY_BASELINE_VERSION=1` quando o banco antigo ainda não possuir as tabelas de gastos previstos.
+- Use `FLYWAY_BASELINE_VERSION=2` quando essas tabelas já tiverem sido criadas pelo Hibernate. Nesse caso, a `V3` ainda será executada para adicionar as validações monetárias.
+
+Exemplo no PowerShell para adotar um banco que já possui todas as tabelas até a `V2`:
+
+```powershell
+cd back-end
+$env:FLYWAY_BASELINE_ON_MIGRATE="true"
+$env:FLYWAY_BASELINE_VERSION="2"
+.\mvnw.cmd spring-boot:run
+```
+
+Depois que a tabela `flyway_schema_history` for criada, remova essas duas variáveis do ambiente. As próximas migrations serão aplicadas normalmente.
+
+As migrations utilizam recursos e collation do MySQL 8, que é a versão exigida pelo projeto.
 
 ### 3. Rode o back-end
 
