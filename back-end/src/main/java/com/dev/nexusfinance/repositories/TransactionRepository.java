@@ -12,6 +12,7 @@ import com.dev.nexusfinance.models.CategoryType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
@@ -40,6 +41,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
                                       @Param("type") CategoryType type,
                                       @Param("search") String search,
                                       Pageable pageable);
+
+    @EntityGraph(attributePaths = {"category", "account"})
+    @Query("select t from Transaction t where t.idTransaction = :id")
+    Optional<Transaction> findDetailedById(@Param("id") UUID id);
 
     @Query("select coalesce(sum(t.amount), 0) from Transaction t where t.account.idAccount = :accountId and t.transaction_date >= :start and t.transaction_date < :end and t.category.type = :type")
     BigDecimal sumByType(@Param("accountId") UUID accountId, @Param("start") LocalDate start,

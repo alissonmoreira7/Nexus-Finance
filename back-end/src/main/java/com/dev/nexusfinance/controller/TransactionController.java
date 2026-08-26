@@ -26,6 +26,13 @@ public class TransactionController {
         accounts.assertOwnership(accountId, authenticatedUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(view(service.processManual(accountId, input)));
     }
+
+    @GetMapping("/{id}") public TransactionDetailView detail(@RequestAttribute UUID authenticatedUserId, @PathVariable UUID id) {
+        Transaction transaction = service.findById(id);
+        accounts.assertOwnership(transaction.getAccount().getIdAccount(), authenticatedUserId);
+        return detailView(transaction);
+    }
+
     @GetMapping("/account/{accountId}") public PageResponse<TransactionView> statement(@RequestAttribute UUID authenticatedUserId, @PathVariable UUID accountId,
     @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,
     @RequestParam(required = false) com.dev.nexusfinance.models.TransactionSource source,
@@ -46,7 +53,9 @@ public class TransactionController {
     }
 
     private TransactionView view(Transaction t) { return new TransactionView(t.getIdTransaction(), t.getClean_description(), t.getCategory().getName(), t.getCategory().getType().name(), t.getSource().name(), t.getAmount(), t.getTransaction_date()); }
+    private TransactionDetailView detailView(Transaction t) { return new TransactionDetailView(t.getIdTransaction(), t.getClean_description(), t.getCategory().getName(), t.getCategory().getType().name(), t.getAmount(), t.getTransaction_date(), t.getAccount().getBankName()); }
     public record UploadResult(String message, int inserted) {}
     public record TransactionView(UUID id, String cleanDescription, String category, String type, String source, BigDecimal amount, LocalDate transactionDate) {}
+    public record TransactionDetailView(UUID id, String cleanDescription, String category, String type, BigDecimal amount, LocalDate transactionDate, String accountName) {}
     public record PageResponse<T>(List<T> content, int page, int size, long totalElements, int totalPages) {}
 }

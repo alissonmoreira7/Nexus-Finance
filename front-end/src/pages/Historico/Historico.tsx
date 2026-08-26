@@ -6,8 +6,8 @@ import {
   ChevronRight,
   ListFilter,
   Search,
-  X,
 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import MobileLayout from '../../components/layout/MobileLayout'
 import { useAccounts } from '../../hooks/useAccounts'
 import { api } from '../../services/api'
@@ -41,6 +41,7 @@ const filters = [
 ] as const
 
 export default function Historico() {
+  const navigate = useNavigate()
   const { accounts, isLoading: loadingAccounts, error: accountError } = useAccounts()
   const [accountId, setAccountId] = useState('')
   const [page, setPage] = useState(0)
@@ -50,7 +51,6 @@ export default function Historico() {
   const [type, setType] = useState<TypeFilter>('ALL')
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const selectedAccountId = accountId || accounts[0]?.id || ''
   const selectedAccount = accounts.find(account => account.id === selectedAccountId)
 
@@ -86,15 +86,6 @@ export default function Historico() {
     void loadTransactions()
     return () => { cancelled = true }
   }, [selectedAccountId, page, type, debouncedSearch])
-
-  useEffect(() => {
-    if (!selectedTransaction) return
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSelectedTransaction(null)
-    }
-    window.addEventListener('keydown', closeOnEscape)
-    return () => window.removeEventListener('keydown', closeOnEscape)
-  }, [selectedTransaction])
 
   const changeSearch = (value: string) => {
     setSearch(value)
@@ -155,7 +146,14 @@ export default function Historico() {
           type="button"
           key={item.id}
           className="transaction-item"
-          onClick={() => setSelectedTransaction(item)}
+          onClick={() => navigate(`/historico/${item.id}`, {
+            state: {
+              transaction: {
+                ...item,
+                accountName: selectedAccount?.bankName || 'Conta selecionada',
+              },
+            },
+          })}
           aria-label={`Ver detalhes de ${item.cleanDescription}`}
         >
           <span className={`transaction-icon ${item.type === 'INCOME' ? 'income' : 'expense'}`}>
@@ -181,34 +179,5 @@ export default function Historico() {
       </nav>}
     </> : <div className="state-box">Nenhuma transação encontrada. Tente mudar a busca ou o filtro.</div>}
 
-    {selectedTransaction && <div
-      className="transaction-detail-backdrop"
-      role="presentation"
-      onMouseDown={event => { if (event.target === event.currentTarget) setSelectedTransaction(null) }}
-    >
-      <section className="transaction-detail" role="dialog" aria-modal="true" aria-labelledby="transaction-detail-title">
-        <header>
-          <div>
-            <span>Detalhes da transação</span>
-            <h2 id="transaction-detail-title">{selectedTransaction.cleanDescription}</h2>
-          </div>
-          <button type="button" autoFocus onClick={() => setSelectedTransaction(null)} aria-label="Fechar detalhes">
-            <X size={22} />
-          </button>
-        </header>
-
-        <div className={`transaction-detail-amount ${selectedTransaction.type === 'INCOME' ? 'income' : 'expense'}`}>
-          <span>{selectedTransaction.type === 'INCOME' ? 'Entrada' : 'Saída'}</span>
-          <strong>{selectedTransaction.type === 'INCOME' ? '+' : '-'} {money(selectedTransaction.amount)}</strong>
-        </div>
-
-        <dl>
-          <div><dt>Categoria</dt><dd>{selectedTransaction.category}</dd></div>
-          <div><dt>Data</dt><dd>{date(selectedTransaction.transactionDate)}</dd></div>
-          <div><dt>Conta</dt><dd>{selectedAccount?.bankName || 'Conta selecionada'}</dd></div>
-          <div><dt>Identificador</dt><dd>{selectedTransaction.id}</dd></div>
-        </dl>
-      </section>
-    </div>}
   </MobileLayout>
 }

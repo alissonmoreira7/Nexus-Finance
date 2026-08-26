@@ -10,6 +10,7 @@ import Cadastrar from './pages/Cadastrar/Cadastrar.tsx'
 import Dashboard from './pages/Dashboard/Dashboard.tsx'
 import Importar from './pages/Importar/Importar.tsx'
 import Historico from './pages/Historico/Historico.tsx'
+import DetalheTransacao from './pages/Historico/DetalheTransacao.tsx'
 import Perfil from './pages/Perfil/Perfil.tsx'
 import Adicionar from './pages/Adicionar/Adicionar.tsx'
 import Relatorios from './pages/Relatorios/Relatorios.tsx'
@@ -29,6 +30,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
             <Route path="/importar" element={<PrivateRoute><Importar /></PrivateRoute>} />
             <Route path="/historico" element={<PrivateRoute><Historico /></PrivateRoute>} />
+            <Route path="/historico/:transactionId" element={<PrivateRoute><DetalheTransacao /></PrivateRoute>} />
             <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
             <Route path="/adicionar" element={<PrivateRoute><Adicionar /></PrivateRoute>} />
             <Route path="/relatorios" element={<PrivateRoute><Relatorios /></PrivateRoute>} />

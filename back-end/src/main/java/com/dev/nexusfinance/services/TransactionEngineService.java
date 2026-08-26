@@ -41,6 +41,12 @@ public class TransactionEngineService {
         transactions.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    public Transaction findById(UUID id) {
+        return transactions.findDetailedById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Transação não encontrada"));
+    }
+
     private List<Transaction> processAndReturn(UUID accountId, List<TransactionInput> inputs, TransactionSource source) {
         if (inputs == null || inputs.isEmpty()) throw new IllegalArgumentException("O lote deve conter ao menos uma transação");
         if (inputs.size() > 10_000) throw new IllegalArgumentException("O lote excede o limite de 10.000 transações");
