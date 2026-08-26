@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import com.dev.nexusfinance.models.TransactionSource;
+import com.dev.nexusfinance.models.CategoryType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,6 +24,22 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
     Page<Transaction> findByAccountAndSource(@Param("accountId") UUID accountId,
                                              @Param("source") TransactionSource source,
                                              Pageable pageable);
+
+    @EntityGraph(attributePaths = "category")
+    @Query("""
+        select t from Transaction t
+        where t.account.idAccount = :accountId
+          and (:source is null or t.source = :source or (t.source is null and :source = com.dev.nexusfinance.models.TransactionSource.CSV))
+          and (:type is null or t.category.type = :type)
+          and (:search = '' or lower(t.clean_description) like lower(concat('%', :search, '%'))
+               or lower(t.category.name) like lower(concat('%', :search, '%')))
+        order by t.transaction_date desc, t.idTransaction desc
+        """)
+    Page<Transaction> searchByAccount(@Param("accountId") UUID accountId,
+                                      @Param("source") TransactionSource source,
+                                      @Param("type") CategoryType type,
+                                      @Param("search") String search,
+                                      Pageable pageable);
 
     @Query("select coalesce(sum(t.amount), 0) from Transaction t where t.account.idAccount = :accountId and t.transaction_date >= :start and t.transaction_date < :end and t.category.type = :type")
     BigDecimal sumByType(@Param("accountId") UUID accountId, @Param("start") LocalDate start,

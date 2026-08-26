@@ -85,8 +85,13 @@ public class TransactionEngineService {
     }
     @Transactional(readOnly = true)
     public Page<Transaction> findByAccount(UUID accountId, TransactionSource source, Pageable pageable) {
+        return findByAccount(accountId, source, null, "", pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Transaction> findByAccount(UUID accountId, TransactionSource source, CategoryType type, String search, Pageable pageable) {
         if (!accounts.existsById(accountId)) throw new ResourceNotFoundException("Conta não encontrada");
-        return source == null ? transactions.findByAccount_IdAccount(accountId, pageable)
-            : transactions.findByAccountAndSource(accountId, source, pageable);
+        String normalizedSearch = search == null ? "" : search.trim();
+        return transactions.searchByAccount(accountId, source, type, normalizedSearch, pageable);
     }
 }

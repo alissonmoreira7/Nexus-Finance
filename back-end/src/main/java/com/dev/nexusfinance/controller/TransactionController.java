@@ -28,10 +28,13 @@ public class TransactionController {
     }
     @GetMapping("/account/{accountId}") public PageResponse<TransactionView> statement(@RequestAttribute UUID authenticatedUserId, @PathVariable UUID accountId,
     @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size,
-    @RequestParam(required = false) com.dev.nexusfinance.models.TransactionSource source) {
+    @RequestParam(required = false) com.dev.nexusfinance.models.TransactionSource source,
+    @RequestParam(required = false) com.dev.nexusfinance.models.CategoryType type,
+    @RequestParam(defaultValue = "") String search) {
         accounts.assertOwnership(accountId, authenticatedUserId);
         if (page < 0 || size < 1 || size > 100) throw new IllegalArgumentException("Paginação inválida; size deve estar entre 1 e 100");
-        Page<Transaction> result = service.findByAccount(accountId, source, PageRequest.of(page, size));
+        if (search.length() > 100) throw new IllegalArgumentException("A busca deve ter no máximo 100 caracteres");
+        Page<Transaction> result = service.findByAccount(accountId, source, type, search, PageRequest.of(page, size));
         return new PageResponse<>(result.getContent().stream().map(this::view).toList(), result.getNumber(), result.getSize(), result.getTotalElements(), result.getTotalPages());
     }
 
