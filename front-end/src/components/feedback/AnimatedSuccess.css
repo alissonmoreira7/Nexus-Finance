@@ -1,0 +1,142 @@
+.animated-success {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  animation: animated-success-background-in 180ms ease-out both;
+}
+
+.animated-success-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-toast);
+  background: rgba(15,15,20,.92);
+  backdrop-filter: blur(7px);
+}
+
+.animated-success-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: animated-success-content-in 420ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+.animated-success-check {
+  width: 124px;
+  height: 124px;
+  margin-bottom: 20px;
+  overflow: visible;
+  fill: none;
+}
+
+.animated-success-orbit {
+  stroke: rgba(114,214,181,.34);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 11 8 3 8;
+  transform-origin: center;
+  animation: animated-success-orbit 900ms cubic-bezier(.3,.7,.2,1) both;
+}
+
+.animated-success-ring {
+  stroke: #72d6b5;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  animation: animated-success-ring 720ms cubic-bezier(.45,0,.2,1) 120ms forwards;
+}
+
+.animated-success-mark {
+  stroke: #eeedfe;
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: animated-success-mark 380ms cubic-bezier(.2,.8,.2,1) 720ms forwards;
+}
+
+.animated-success-content h2 {
+  margin-bottom: 7px;
+  font-size: 24px;
+}
+
+.animated-success-content p {
+  color: #918da7;
+}
+
+@keyframes animated-success-background-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes animated-success-content-in {
+  from {
+    opacity: 0;
+    transform: scale(.88);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes animated-success-orbit {
+  from {
+    opacity: 0;
+    transform: rotate(-220deg) scale(.55);
+  }
+
+  65% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: .7;
+    transform: rotate(180deg) scale(1);
+  }
+}
+
+@keyframes animated-success-ring {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes animated-success-mark {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-success,
+  .animated-success-content,
+  .animated-success-orbit,
+  .animated-success-ring,
+  .animated-success-mark {
+    animation: none;
+  }
+
+  .animated-success-ring,
+  .animated-success-mark {
+    stroke-dashoffset: 0;
+  }
+}
