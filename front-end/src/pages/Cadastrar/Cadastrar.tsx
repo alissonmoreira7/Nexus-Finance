@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import './style.css'
+import './cadastrar_style.css'
 import nexus_logo from '../../assets/nexus_logo.png'
 import EmailInput from '../../components/input/EmailInput'
 import PasswordInput from '../../components/input/SenhaInput'

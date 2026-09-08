@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import MobileLayout from '../../components/layout/MobileLayout'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
-import './style.css'
+import './relatorio_style.css'
 
 interface Account { id: string }
 interface Summary { totalIncome: number; totalExpense: number; balance: number; expensesByCategory: Record<string, number> }

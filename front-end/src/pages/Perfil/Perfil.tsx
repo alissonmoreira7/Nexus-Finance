@@ -7,7 +7,7 @@ import { useAuth, type User } from '../../contexts/AuthContext'
 import { useAccounts } from '../../hooks/useAccounts'
 import { api } from '../../services/api'
 import '../app-pages.css'
-import './style.css'
+import './perfil_style.css'
 
 interface Profile extends User {
   cpf: string

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import MobileLayout from '../../components/layout/MobileLayout'
 import { useAuth } from '../../contexts/AuthContext'
 import { api } from '../../services/api'
-import './style.css'
+import './dashboard_style.css'
 
 interface Transaction { id: string; cleanDescription: string; amount: number; type: 'INCOME' | 'EXPENSE'; category: string; transactionDate: string }
 interface Account { id: string; bankName: string; userId: string; balance: number }
