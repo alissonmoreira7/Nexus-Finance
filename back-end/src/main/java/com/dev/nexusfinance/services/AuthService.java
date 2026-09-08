@@ -1,8 +1,10 @@
 package com.dev.nexusfinance.services;
 
+import com.dev.nexusfinance.dto.UserView;
 import com.dev.nexusfinance.exceptions.UnauthorizedException;
 import com.dev.nexusfinance.models.User;
 import com.dev.nexusfinance.repositories.UserRepository;
+import com.dev.nexusfinance.repositories.UserProfileImageRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,12 +22,14 @@ import java.util.UUID;
 public class AuthService implements UserDetailsService {
     private static final long TOKEN_TTL_SECONDS = 8 * 60 * 60;
     private final UserRepository users;
+    private final UserProfileImageRepository profileImages;
     private final PasswordService passwords;
     private final byte[] secret;
 
-    public AuthService(UserRepository users, PasswordService passwords,
+    public AuthService(UserRepository users, UserProfileImageRepository profileImages, PasswordService passwords,
                        @Value("${app.auth.secret}") String secret) {
         this.users = users;
+        this.profileImages = profileImages;
         this.passwords = passwords;
         this.secret = secret.getBytes(StandardCharsets.UTF_8);
     }
@@ -44,7 +48,7 @@ public class AuthService implements UserDetailsService {
 
         return new LoginResult(
             createToken(user.getIdUser()),
-            new UserView(user.getIdUser(), user.getName(), user.getEmail())
+            UserView.from(user, profileImages.findById(user.getIdUser()).orElse(null))
         );
     }
 
@@ -108,6 +112,5 @@ public class AuthService implements UserDetailsService {
     }
 
     public record LoginResult(String token, UserView user) {}
-    public record UserView(UUID id, String name, String email) {}
     public record AuthenticatedUser(UUID id, User details) {}
 }

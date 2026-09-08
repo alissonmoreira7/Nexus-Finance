@@ -3,6 +3,7 @@ package com.dev.nexusfinance.services;
 import com.dev.nexusfinance.exceptions.UnauthorizedException;
 import com.dev.nexusfinance.models.User;
 import com.dev.nexusfinance.repositories.UserRepository;
+import com.dev.nexusfinance.repositories.UserProfileImageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,8 +23,9 @@ class AuthServiceTest {
     @BeforeEach
     void setUp() {
         users = mock(UserRepository.class);
+        UserProfileImageRepository profileImages = mock(UserProfileImageRepository.class);
         PasswordService passwords = new PasswordService();
-        auth = new AuthService(users, passwords, "test-secret-with-at-least-32-characters");
+        auth = new AuthService(users, profileImages, passwords, "test-secret-with-at-least-32-characters");
 
         user = new User();
         user.setIdUser(UUID.randomUUID());

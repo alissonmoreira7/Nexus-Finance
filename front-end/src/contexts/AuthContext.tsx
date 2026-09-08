@@ -2,12 +2,13 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { api, AUTH_UNAUTHORIZED_EVENT } from '../services/api'
 
-export interface User { id: string; email: string; name: string }
+export interface User { id: string; email: string; name: string; cpf?: string; profileImage?: string | null }
 interface LoginResponse { token: string; user: User }
 interface AuthContextType {
   user: User | null; isAuthenticated: boolean; isLoading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (name: string, cpf: string, email: string, password: string) => Promise<void>
+  updateUser: (user: User) => void
   logout: () => void
 }
 
@@ -65,6 +66,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false)
     }
   }
+  const updateUser = (updatedUser: User) => {
+    localStorage.setItem('user', JSON.stringify(updatedUser))
+    setUser(updatedUser)
+  }
   const register = async (name: string, cpf: string, email: string, password: string) => {
     setIsLoading(true)
     try {
@@ -75,9 +80,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally { setIsLoading(false) }
   }
   const logout = clearSession
-  return <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, register, logout }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, register, updateUser, logout }}>{children}</AuthContext.Provider>
 }
 
+// Contexto e hook permanecem juntos para manter a API pública já usada pelo app.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext)
   if (!context) throw new Error('useAuth deve ser usado dentro de AuthProvider')

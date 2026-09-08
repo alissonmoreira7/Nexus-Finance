@@ -27,7 +27,9 @@ export default function MobileLayout({ title, subtitle, headerAction, wide = fal
           aria-label={`Abrir perfil${user?.name ? ` de ${user.name}` : ''}`}
           title="Abrir perfil"
         >
-           <span aria-hidden="true">{initials}</span>
+           <span aria-hidden="true">
+             {user?.profileImage ? <img src={user.profileImage} alt="" /> : initials}
+           </span>
         </Link>
         {headerAction}
       </header>

@@ -6,10 +6,11 @@ export const AUTH_UNAUTHORIZED_EVENT = 'nexus:auth-unauthorized'
 
 export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('authToken')
+  const hasFormDataBody = options.body instanceof FormData
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      ...(!hasFormDataBody ? { 'Content-Type': 'application/json' } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
