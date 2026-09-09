@@ -37,7 +37,9 @@ export default function GastosPrevistos() {
   }
 
   const deleteExpense = async (expense: PlannedExpense) => {
+    
     if (!window.confirm(`Excluir ${expense.description} de ${monthLabel(month)}?`)) return
+    
     setDeletingId(expense.id); setError(''); setStatus('')
     try {
       await api(`/forecasts/${month}/expenses/${expense.id}`, { method: 'DELETE' })
@@ -57,8 +59,12 @@ export default function GastosPrevistos() {
 
     <section className="month-navigation" aria-label="Mês do planejamento">
       <button type="button" onClick={() => changeMonth(shiftMonth(month, -1))} aria-label="Mês anterior"><ChevronLeft size={22} aria-hidden="true" /></button>
-      <label><span className="sr-only">Mês do planejamento</span><input type="month" value={month} onChange={event => changeMonth(event.target.value)} /></label>
-      <button type="button" onClick={() => changeMonth(shiftMonth(month, 1))} aria-label="Próximo mês"><ChevronRight size={22} aria-hidden="true" /></button>
+      <label>
+        <span className="sr-only">Mês do planejamento</span><input type="month" value={month} onChange={event => changeMonth(event.target.value)} />
+      </label>
+      <button type="button" onClick={() => changeMonth(shiftMonth(month, 1))} aria-label="Próximo mês">
+        <ChevronRight size={22} aria-hidden="true" />
+      </button>
     </section>
 
     {month !== currentMonth() && <button type="button" className="current-month-action" onClick={() => changeMonth(currentMonth())}>Voltar ao mês atual</button>}
@@ -67,9 +73,19 @@ export default function GastosPrevistos() {
 
     {loading ? <div className="forecast-message">Carregando planejamento...</div> : forecast && <>
       <div className="forecast-summary" aria-live="polite">
-        <article className={`forecast-summary-card projected${forecast.projectedBalance < 0 ? ' negative' : ''}`}><span>Saldo após previstos</span><strong>{money(forecast.projectedBalance)}</strong><small>Renda menos gastos previstos</small></article>
-        <article className="forecast-summary-card"><span>Renda prevista</span><strong>{forecast.expectedIncome ? money(forecast.expectedIncome) : 'Não informada'}</strong></article>
-        <article className="forecast-summary-card"><span>Total previsto</span><strong>{money(forecast.totalPlanned)}</strong></article>
+        <article className={`forecast-summary-card projected${forecast.projectedBalance < 0 ? ' negative' : ''}`}>
+          <span>Saldo após previstos</span> 
+          <strong>{money(forecast.projectedBalance)}</strong> 
+          <small>Renda menos gastos previstos</small>
+        </article>
+        <article className="forecast-summary-card">
+          <span>Renda prevista</span>
+          <strong>{forecast.expectedIncome ? money(forecast.expectedIncome) : 'Não informada'}</strong>
+        </article>
+        <article className="forecast-summary-card">
+          <span>Total de gastos previstos</span>
+          <strong>{money(forecast.totalPlanned)}</strong>
+        </article>
       </div>
 
       <nav className="forecast-shortcuts" aria-label={`Ações do planejamento de ${monthLabel(month)}`}>
@@ -82,16 +98,40 @@ export default function GastosPrevistos() {
       </nav>
 
       <section className="forecast-panel expenses-panel">
-        <div className="expenses-heading"><div><h2>Gastos do mês</h2><span>{forecast.expenses.length} {forecast.expenses.length === 1 ? 'item' : 'itens'}</span></div><CalendarDays size={24} aria-hidden="true" /></div>
-        {forecast.expenses.length ? <div className="planned-expenses-list">{forecast.expenses.map(expense => <article key={expense.id} className="planned-expense-item">
-          <div className="planned-expense-copy"><strong>{expense.description}</strong><span>{expense.dueDate ? `Vence em ${new Date(`${expense.dueDate}T00:00:00`).toLocaleDateString('pt-BR')}` : 'Sem vencimento definido'}</span></div>
-          <strong className="planned-expense-amount">{money(expense.amount)}</strong>
-          <div className="planned-expense-actions">
-            <Link to={`/gastos-previstos/${expense.id}/editar?month=${month}`} aria-label={`Editar ${expense.description}`} title={`Editar ${expense.description}`}><Pencil size={20} aria-hidden="true" /></Link>
-            <button type="button" className="delete" onClick={() => void deleteExpense(expense)} disabled={deletingId !== null} aria-label={`Excluir ${expense.description}`} title={`Excluir ${expense.description}`}><Trash2 size={20} aria-hidden="true" /></button>
+        <div className="expenses-heading">
+          <div>
+            <h2>Gastos do mês</h2>
+            <span>
+              {forecast.expenses.length} {forecast.expenses.length === 1 ? 'item' : 'itens'}
+            </span>
           </div>
-        </article>)}</div> : <div className="forecast-empty"><PlusCircle size={28} aria-hidden="true" /><strong>Nenhum gasto previsto neste mês</strong><span>Adicione aluguel, cartão ou mensalidades pelo atalho acima.</span></div>}
+          <CalendarDays size={24} aria-hidden="true" />
+        </div>
+        {forecast.expenses.length ? <div className="planned-expenses-list">
+          {forecast.expenses.map(expense => <article key={expense.id} className="planned-expense-item">
+          <div className="planned-expense-copy">
+            <strong>{expense.description}</strong>
+            <span>{expense.dueDate ? `Vence em ${new Date(`${expense.dueDate}T00:00:00`).toLocaleDateString('pt-BR')}` : 'Sem vencimento definido'}</span>
+          </div>
+            <strong className="planned-expense-amount">{money(expense.amount)}</strong>
+            <div className="planned-expense-actions">
+              <Link to={`/gastos-previstos/${expense.id}/editar?month=${month}`} aria-label={`Editar ${expense.description}`} title={`Editar ${expense.description}`}><Pencil size={20} aria-hidden="true" /></Link>
+             
+              <button type="button" className="delete" onClick={() => void deleteExpense(expense)} disabled={deletingId !== null} aria-label={`Excluir ${expense.description}`} title={`Excluir ${expense.description}`}>
+                <Trash2 size={20} aria-hidden="true" />
+              </button>
+            </div>
+            </article>)}</div> : 
+          <div className="forecast-empty"><PlusCircle size={28} aria-hidden="true" />
+            <strong>Nenhum gasto previsto neste mês</strong>
+            <span>  Adicione aluguel, cartão ou mensalidades pelo atalho acima.  </span>
+          </div>}
       </section>
+
+      <div className='confirm-delete'>
+            
+
+      </div>
     </>}
   </MobileLayout>
 }
