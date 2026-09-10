@@ -13,15 +13,20 @@ public class TransactionController {
 
     private final TransactionEngineService service;
     private final com.dev.nexusfinance.services.AccountService accounts;
-    public TransactionController(TransactionEngineService service, com.dev.nexusfinance.services.AccountService accounts) { this.service = service; this.accounts = accounts; }
+    public TransactionController(TransactionEngineService service, com.dev.nexusfinance.services.AccountService accounts) { 
+        this.service = service; 
+        this.accounts = accounts; 
+    }
 
-    @PostMapping("/upload") public ResponseEntity<UploadResult> upload(@RequestAttribute UUID authenticatedUserId, @RequestParam UUID accountId, @RequestBody List<TransactionEngineService.TransactionInput> inputs) {
+    @PostMapping("/upload")
+    public ResponseEntity<UploadResult> upload(@RequestAttribute UUID authenticatedUserId, @RequestParam UUID accountId, @RequestBody List<TransactionEngineService.TransactionInput> inputs) {
         accounts.assertOwnership(accountId, authenticatedUserId);
         int count = service.processLote(accountId, inputs);
         return ResponseEntity.status(HttpStatus.CREATED).body(new UploadResult("Lote processado com sucesso", count));
     }
 
-    @PostMapping("/manual") public ResponseEntity<TransactionView> manual(@RequestAttribute UUID authenticatedUserId,
+    @PostMapping("/manual") 
+    public ResponseEntity<TransactionView> manual(@RequestAttribute UUID authenticatedUserId,
         @RequestParam UUID accountId, @RequestBody TransactionEngineService.TransactionInput input) {
         accounts.assertOwnership(accountId, authenticatedUserId);
         return ResponseEntity.status(HttpStatus.CREATED).body(view(service.processManual(accountId, input)));
@@ -52,8 +57,27 @@ public class TransactionController {
         return ResponseEntity.noContent().build();
     }
 
-    private TransactionView view(Transaction t) { return new TransactionView(t.getIdTransaction(), t.getClean_description(), t.getCategory().getName(), t.getCategory().getType().name(), t.getSource().name(), t.getAmount(), t.getTransaction_date()); }
-    private TransactionDetailView detailView(Transaction t) { return new TransactionDetailView(t.getIdTransaction(), t.getClean_description(), t.getCategory().getName(), t.getCategory().getType().name(), t.getAmount(), t.getTransaction_date(), t.getAccount().getBankName()); }
+    private TransactionView view(Transaction t) { 
+        return new TransactionView(t.getIdTransaction(), 
+            t.getClean_description(),
+            t.getCategory().getName(), 
+            t.getCategory().getType().name(), 
+            t.getSource().name(), 
+            t.getAmount(), 
+            t.getTransaction_date())
+        ; 
+    }
+    private TransactionDetailView detailView(Transaction t) { 
+        return new TransactionDetailView(t.getIdTransaction(),
+            t.getClean_description(),
+            t.getCategory().getName(),
+            t.getCategory().getType().name(),
+            t.getAmount(), 
+            t.getTransaction_date(), 
+            t.getAccount().getBankName())
+        ; 
+    }
+
     public record UploadResult(String message, int inserted) {}
     public record TransactionView(UUID id, String cleanDescription, String category, String type, String source, BigDecimal amount, LocalDate transactionDate) {}
     public record TransactionDetailView(UUID id, String cleanDescription, String category, String type, BigDecimal amount, LocalDate transactionDate, String accountName) {}
