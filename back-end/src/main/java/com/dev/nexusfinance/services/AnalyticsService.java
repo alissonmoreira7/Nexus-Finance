@@ -5,6 +5,7 @@ import com.dev.nexusfinance.repositories.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -12,16 +13,18 @@ import java.util.*;
 public class AnalyticsService {
     private final TransactionRepository transactions;
     private final AccountRepository accounts;
+    private final Clock clock;
 
-    public AnalyticsService(TransactionRepository transactions, AccountRepository accounts) {
+    public AnalyticsService(TransactionRepository transactions, AccountRepository accounts, Clock clock) {
         this.transactions = transactions;
         this.accounts = accounts;
+        this.clock = clock;
     }
 
     @Transactional(readOnly = true)
     public AnalyticsSummary getSummary(UUID accountId) {
         if (!accounts.existsById(accountId)) throw new ResourceNotFoundException("Conta não encontrada");
-        LocalDate start = LocalDate.now().withDayOfMonth(1), end = start.plusMonths(1);
+        LocalDate start = LocalDate.now(clock).withDayOfMonth(1), end = start.plusMonths(1);
         BigDecimal income = value(transactions.sumByType(accountId, start, end, CategoryType.INCOME));
         BigDecimal expense = value(transactions.sumByType(accountId, start, end, CategoryType.EXPENSE));
         Map<String, BigDecimal> byCategory = new LinkedHashMap<>();

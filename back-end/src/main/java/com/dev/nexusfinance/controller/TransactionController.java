@@ -52,7 +52,9 @@ public class TransactionController {
 
     // DELETE /api/v1/transactions/{id}
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    public ResponseEntity<Void> delete(@RequestAttribute UUID authenticatedUserId, @PathVariable UUID id) {
+        Transaction transaction = service.findById(id);
+        accounts.assertOwnership(transaction.getAccount().getIdAccount(), authenticatedUserId);
         service.deleteTransaction(id);
         return ResponseEntity.noContent().build();
     }

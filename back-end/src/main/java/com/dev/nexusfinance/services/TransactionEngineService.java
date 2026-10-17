@@ -65,12 +65,18 @@ public class TransactionEngineService {
         }
         return transactions.saveAll(toSave);
     }
+    public static final String DESCRICAO_AUSENTE = "SEM DESCRICAO";
+
     public String cleanDescription(String raw) {
-        if (raw == null || raw.isBlank()) return "SEM DESCRICAO";
-        return raw.toUpperCase().replaceAll("\\*\\d+", "")
+        if (raw == null || raw.isBlank()) return DESCRICAO_AUSENTE;
+        String clean = raw.toUpperCase().replaceAll("\\*\\d+", "")
             .replaceAll("\\b(COMPRA|PAGAMENTO|TRANSFERENCIA|PIX|DEBITO|CREDITO|VISA|MASTER|ELO)\\b", "")
             .replaceAll("\\b(SAO PAULO|RIO DE JANEIRO|BELO HORIZONTE|CURITIBA|BRASILIA|SP|RJ|MG|PR|DF|BA|PE)\\b", "")
             .replaceAll("\\b\\d{4,}\\b", "").replaceAll("\\s{2,}", " ").trim();
+        // Uma descricao composta apenas de ruido ("COMPRA VISA*1234 SAO PAULO") sobra vazia
+        // depois da limpeza. A coluna e NOT NULL, mas "" satisfaz NOT NULL: sem esta guarda
+        // a transacao e gravada com descricao em branco. Ver BUG-01 no plano de testes.
+        return clean.isBlank() ? DESCRICAO_AUSENTE : clean;
     }
     public Category categorize(String description, List<Category> dictionary) {
         return categorize(description, dictionary, null);

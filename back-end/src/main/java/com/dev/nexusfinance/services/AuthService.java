@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.UUID;
@@ -25,13 +26,15 @@ public class AuthService implements UserDetailsService {
     private final UserProfileImageRepository profileImages;
     private final PasswordService passwords;
     private final byte[] secret;
+    private final Clock clock;
 
     public AuthService(UserRepository users, UserProfileImageRepository profileImages, PasswordService passwords,
-                       @Value("${app.auth.secret}") String secret) {
+                       @Value("${app.auth.secret}") String secret, Clock clock) {
         this.users = users;
         this.profileImages = profileImages;
         this.passwords = passwords;
         this.secret = secret.getBytes(StandardCharsets.UTF_8);
+        this.clock = clock;
     }
 
     public LoginResult login(String email, String password) {
@@ -74,7 +77,7 @@ public class AuthService implements UserDetailsService {
 
             String payload = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
             String[] values = payload.split(":");
-            if (values.length != 2 || Instant.now().getEpochSecond() > Long.parseLong(values[1])) {
+            if (values.length != 2 || Instant.now(clock).getEpochSecond() > Long.parseLong(values[1])) {
                 throw new UnauthorizedException("Token expirado");
             }
             return UUID.fromString(values[0]);
@@ -87,7 +90,7 @@ public class AuthService implements UserDetailsService {
 
     private String createToken(UUID userId) {
         String payload = Base64.getUrlEncoder().withoutPadding().encodeToString(
-            (userId + ":" + (Instant.now().getEpochSecond() + TOKEN_TTL_SECONDS))
+            (userId + ":" + (Instant.now(clock).getEpochSecond() + TOKEN_TTL_SECONDS))
                 .getBytes(StandardCharsets.UTF_8)
         );
         return payload + "." + sign(payload);

@@ -29,6 +29,11 @@ public class UserService {
     @Transactional
     public User create(User user) {
         validate(user);
+        // O endpoint de cadastro e publico e recebe a entidade crua. Com idUser
+        // preenchido pelo cliente, save() faz merge em vez de persist — um UPDATE
+        // na linha daquele UUID, ou seja, takeover de conta sem autenticacao.
+        // Ver S-02 na auditoria de seguranca.
+        user.setIdUser(null);
         String cpf = user.getCpf().replaceAll("\\D", "");
         String email = user.getEmail().trim().toLowerCase();
         if (userRepository.findByCpf(cpf).isPresent()) throw new IllegalArgumentException("CPF já cadastrado");

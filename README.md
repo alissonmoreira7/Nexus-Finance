@@ -409,6 +409,17 @@ npm run dev
 
 Acesse: `http://localhost:5173`
 
+### 5. Rode os testes
+
+```bash
+cd back-end
+./mvnw test     # unitários e de slice — rápido, não precisa de Docker
+./mvnw verify   # + integração com MySQL real e gate de cobertura (precisa de Docker)
+```
+
+A documentação completa da malha de testes está em **[back-end/TESTES.md](back-end/TESTES.md)**:
+convenções, mapa das camadas, fixtures, cobertura e receitas para escrever um teste novo.
+
 ---
 
 ## Estrutura do projeto
@@ -427,10 +438,20 @@ nexus-finance/
 │   │   │   │   ├── services/        # Regras de negócio e motor de transações
 │   │   │   │   └── NexusFinanceApplication.java
 │   │   │   └── resources/
-│   │   │       └── application.properties
-│   │   └── test/java/com/dev/nexusfinance/
-│   │       ├── NexusFinanceApplicationTests.java
-│   │       └── services/AuthServiceTest.java
+│   │   │       ├── application.properties
+│   │   │       └── db/migration/    # Migrations Flyway
+│   │   └── test/
+│   │       ├── java/com/dev/nexusfinance/
+│   │       │   ├── architecture/    # Invariantes de arquitetura (ArchUnit)
+│   │       │   ├── config/          # Cadeia de segurança, com filtros ligados
+│   │       │   ├── controller/      # Contrato HTTP (@WebMvcTest)
+│   │       │   ├── dto/             # Montagem das views
+│   │       │   ├── fixtures/        # Construtores de objetos para teste
+│   │       │   ├── integration/     # *IT — MySQL real via Testcontainers
+│   │       │   └── services/        # Regras de negócio (unitário puro)
+│   │       └── resources/
+│   │           └── application-test.properties
+│   ├── TESTES.md                     # Documentação da malha de testes
 │   ├── docker-compose.yml            # MySQL para desenvolvimento
 │   ├── pom.xml                       # Build e dependências Maven
 │   ├── mvnw

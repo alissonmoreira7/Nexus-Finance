@@ -2,9 +2,17 @@ package com.dev.nexusfinance.config;
 import com.dev.nexusfinance.models.*;
 import com.dev.nexusfinance.repositories.CategoryRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import java.util.List;
 
+/**
+ * Semeia as categorias padrao no start da aplicacao.
+ *
+ * <p>Desativado no perfil {@code test}: em teste, o estado do banco e montado
+ * explicitamente por cada teste, e um seeder implicito tornaria os testes de
+ * integracao dependentes de ordem de execucao.
+ */
+@Profile("!test")
 @Component
 public class CategorySeeder implements CommandLineRunner {
     private final CategoryRepository categories;

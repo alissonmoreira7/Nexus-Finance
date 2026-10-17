@@ -15,9 +15,14 @@ public class UserController {
     public UserController(UserService service) {
         this.service = service;
     }
+    /**
+     * Devolve {@link UserView}, nunca a entidade {@code User}: manter a entidade
+     * JPA fora do contrato HTTP evita que um campo novo vaze por acidente, e e a
+     * segunda camada de defesa contra o mass assignment do S-02.
+     */
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody User user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(user));
+    public ResponseEntity<UserView> create(@RequestBody User user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserView.from(service.create(user), null));
     }
     @GetMapping("/me")
     public UserView me(@RequestAttribute UUID authenticatedUserId) {
